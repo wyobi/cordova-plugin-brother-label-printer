@@ -1,4 +1,4 @@
-package com.threescreens.cordova.plugin.brotherPrinter;
+package com.momzor.cordova.plugin.brotherPrinter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -70,11 +70,6 @@ public class BrotherPrinter extends CordovaPlugin {
 
         if ("printViaSDK".equals(action)) {
             printViaSDK(args, callbackContext);
-            return true;
-        }
-
-        if ("sendUSBConfig".equals(action)) {
-            sendUSBConfig(args, callbackContext);
             return true;
         }
 
@@ -191,151 +186,45 @@ public class BrotherPrinter extends CordovaPlugin {
 
                     Printer myPrinter = new Printer();
                     PrinterInfo myPrinterInfo = new PrinterInfo();
-
                     myPrinterInfo = myPrinter.getPrinterInfo();
-
-                    myPrinterInfo.printerModel  = PrinterInfo.Model.QL_820NWB;
-                    myPrinterInfo.port          = PrinterInfo.Port.NET;
-                    myPrinterInfo.printMode     = PrinterInfo.PrintMode.ORIGINAL;
-                    myPrinterInfo.orientation   = PrinterInfo.Orientation.PORTRAIT;
-                    myPrinterInfo.paperSize     = PrinterInfo.PaperSize.CUSTOM;
-                    myPrinterInfo.ipAddress     = ipAddress;
-                    myPrinterInfo.macAddress    = macAddress;
-
-                    myPrinter.setPrinterInfo(myPrinterInfo);
-
-                    LabelInfo myLabelInfo = new LabelInfo();
-
-                    myLabelInfo.labelNameIndex  = myPrinter.checkLabelInPrinter();
-                    myLabelInfo.isAutoCut       = true;
-                    myLabelInfo.isEndCut        = true;
-                    myLabelInfo.isHalfCut       = false;
-                    myLabelInfo.isSpecialTape   = false;
-
-                    //label info must be set after setPrinterInfo, it's not in the docs
-                    myPrinter.setLabelInfo(myLabelInfo);
-
-                    String labelWidth = ""+myPrinter.getLabelParam().labelWidth;
-                    String paperWidth = ""+myPrinter.getLabelParam().paperWidth;
-                    Log.d(TAG, "paperWidth = " + paperWidth);
-                    Log.d(TAG, "labelWidth = " + labelWidth);
-                    
-                    PrinterStatus status = myPrinter.printImage(bitmap);
-
-                    //casting to string doesn't work, but this does... wtf Brother
-                    String status_code = ""+status.errorCode;
-
-                    Log.d(TAG, "PrinterStatus: "+status_code);
-
                     PluginResult result;
-                    result = new PluginResult(PluginResult.Status.OK, status_code);
+                    result = new PluginResult(PluginResult.Status.ERROR,  "FAILED");
+
+                     myPrinterInfo.printerModel  = PrinterInfo.Model.QL_820NWB;
+                     myPrinterInfo.port          = PrinterInfo.Port.NET;
+                     myPrinterInfo.printMode     = PrinterInfo.PrintMode.ORIGINAL;
+                     myPrinterInfo.orientation   = PrinterInfo.Orientation.PORTRAIT;
+                     myPrinterInfo.paperSize     = PrinterInfo.PaperSize.CUSTOM;
+
+                     myPrinterInfo.labelNameIndex =  LabelInfo.QL700.valueOf("W62RB").ordinal();;
+                     myPrinterInfo.isAutoCut=true;
+                     myPrinterInfo.isCutAtEnd=true;
+                     myPrinterInfo.isHalfCut=true;
+                     myPrinterInfo.isSpecialTape= false;
+
+                     myPrinterInfo.ipAddress     = ipAddress;
+                     myPrinterInfo.macAddress    = macAddress;
+
+
+                    boolean isSet;
+                    isSet = myPrinter.setPrinterInfo(myPrinterInfo);
+
+                    if(bitmap == null){
+                      result = new PluginResult(PluginResult.Status.ERROR, " Bitmap creation failed");
+                      callbackctx.sendPluginResult(result);
+                    }
+
+                    PrinterStatus status = myPrinter.printImage(bitmap);
+                    result = new PluginResult(PluginResult.Status.OK, ""+status.errorCode);
                     callbackctx.sendPluginResult(result);
 
-                }catch(Exception e){    
+                }catch(Exception e){
+                    PluginResult result;
+                    result = new PluginResult(PluginResult.Status.ERROR,  "FAILED");
+                    callbackctx.sendPluginResult(result);
+
                     e.printStackTrace();
                 }
-            }
-        });
-    }
-
-
-    private void sendUSBConfig(final JSONArray args, final CallbackContext callbackctx){
-
-        cordova.getThreadPool().execute(new Runnable() {
-            public void run() {
-
-                Printer myPrinter = new Printer();
-
-                Context context = cordova.getActivity().getApplicationContext();
-
-                UsbManager usbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
-                UsbDevice usbDevice = myPrinter.getUsbDevice(usbManager);
-                if (usbDevice == null) {
-                    Log.d(TAG, "USB device not found");
-                    return;
-                }
-
-                final String ACTION_USB_PERMISSION = "com.threescreens.cordova.plugin.brotherPrinter.USB_PERMISSION";
-
-                PendingIntent permissionIntent = PendingIntent.getBroadcast(context, 0, new Intent(ACTION_USB_PERMISSION), 0);
-                usbManager.requestPermission(usbDevice, permissionIntent);
-
-                final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
-                    @Override
-                    public void onReceive(Context context, Intent intent) {
-                        String action = intent.getAction();
-                        if (ACTION_USB_PERMISSION.equals(action)) {
-                            synchronized (this) {
-                                if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false))
-                                    Log.d(TAG, "USB permission granted");
-                                else
-                                    Log.d(TAG, "USB permission rejected");
-                            }
-                        }
-                    }
-                };
-
-                context.registerReceiver(mUsbReceiver, new IntentFilter(ACTION_USB_PERMISSION));
-
-                while (true) {
-                    if (!usbManager.hasPermission(usbDevice)) {
-                        usbManager.requestPermission(usbDevice, permissionIntent);
-                    } else {
-                        break; 
-                    }
-
-                    try { 
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) { 
-                        e.printStackTrace();
-                    }
-                }
-
-                PrinterInfo myPrinterInfo = new PrinterInfo();
-
-                myPrinterInfo = myPrinter.getPrinterInfo();
-
-                myPrinterInfo.printerModel  = PrinterInfo.Model.QL_720NW;
-                myPrinterInfo.port          = PrinterInfo.Port.USB;
-                myPrinterInfo.paperSize     = PrinterInfo.PaperSize.CUSTOM;
-
-                myPrinter.setPrinterInfo(myPrinterInfo);
-
-                LabelInfo myLabelInfo = new LabelInfo();
-
-                myLabelInfo.labelNameIndex  = myPrinter.checkLabelInPrinter();
-                myLabelInfo.isAutoCut       = true;
-                myLabelInfo.isEndCut        = true;
-                myLabelInfo.isHalfCut       = false;
-                myLabelInfo.isSpecialTape   = false;
-
-                //label info must be set after setPrinterInfo, it's not in the docs
-                myPrinter.setLabelInfo(myLabelInfo);
-
-
-                try {
-                    File outputDir = context.getCacheDir();
-                    File outputFile = new File(outputDir.getPath() + "configure.prn");
-
-                    FileWriter writer = new FileWriter(outputFile);
-                    writer.write(args.optString(0, null));
-                    writer.close();
-
-                    PrinterStatus status = myPrinter.printFile(outputFile.toString());
-                    outputFile.delete();
-
-                    String status_code = ""+status.errorCode;
-
-                    Log.d(TAG, "PrinterStatus: "+status_code);
-
-                    PluginResult result;
-                    result = new PluginResult(PluginResult.Status.OK, status_code);
-                    callbackctx.sendPluginResult(result);
-
-                } catch (IOException e) {
-                    Log.d(TAG, "Temp file action failed: " + e.toString());
-                } 
-
             }
         });
     }

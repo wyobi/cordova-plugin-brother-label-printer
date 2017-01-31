@@ -1,5 +1,7 @@
 # Cordova Brother Label Printer Plugin
 
+THANKS to Thomas Gordon Lowrey IV for his great work how saved us hours
+
 Uses the Brother Print SDK for Android...
 
 More info can be found here, including a list of compatible printers: http://www.brother.com/product/dev/mobile/android/index.htm
@@ -11,7 +13,7 @@ Already bundled is the following version: v3.0.4 (5/18/2016) which is in the `sr
 In your Cordova project, run the following command to install the plugin.
 
 ```
-cordova plugin add https://github.com/3screens/cordova-brother-label-printer
+cordova plugin add https://github.com/momzor/cordova-brother-label-printer
 ```
 
 And then read [usage](#usage) below.
