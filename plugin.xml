@@ -35,6 +35,8 @@
         <source-file src="src/android/BrotherPrinter.java" target-dir="src/com/momzor/cordova/plugin/brotherPrinter" />
         <source-file src="src/android/libs/BrotherPrintLibrary.jar" target-dir="libs" />
         <source-file src="src/android/libs/armeabi" target-dir="libs" />
+        <source-file src="src/android/libs/armeabi-v7a" target-dir="libs" />
+        <source-file src="src/android/libs/x86" target-dir="libs" />
 
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.CAMERA" />
