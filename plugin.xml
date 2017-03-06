@@ -3,12 +3,12 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
         id="com.momzor.cordova.plugin.brotherPrinter"
-        version="0.0.2">
+        version="0.0.6">
 
     <name>BrotherPrinter</name>
 
     <description>Cordova hooks for Brother Print SDK</description>
-    <repo>https://github.com/momzor/cordova-brother-label-printer.git</repo>
+    <repo>https://github.com/ltrtom/cordova-brother-label-printer.git</repo>
     <keywords>brother, sdk, print</keywords>
     <license></license>
 
@@ -34,7 +34,12 @@
 
         <source-file src="src/android/BrotherPrinter.java" target-dir="src/com/momzor/cordova/plugin/brotherPrinter" />
         <source-file src="src/android/libs/BrotherPrintLibrary.jar" target-dir="libs" />
-        <source-file src="src/android/libs/armeabi" target-dir="libs" />
+        <source-file src="src/android/libs/armeabi/libAndrJFPDFEMB.so" target-dir="libs/armeabi" />
+        <source-file src="src/android/libs/armeabi/libcreatedata.so" target-dir="libs/armeabi" />
+        <source-file src="src/android/libs/armeabi-v7a/libAndrJFPDFEMB.so" target-dir="libs/armeabi-v7a" />
+        <source-file src="src/android/libs/armeabi-v7a/libcreatedata.so" target-dir="libs/armeabi-v7a" />
+        <source-file src="src/android/libs/x86/libAndrJFPDFEMB.so" target-dir="libs/x86" />
+        <source-file src="src/android/libs/x86/libcreatedata.so" target-dir="libs/x86" />
 
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.CAMERA" />
@@ -43,8 +48,8 @@
             <uses-permission android:name="android.permission.INTERNET"/>
             <uses-permission android:name="android.permission.USB" />
             <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-            <uses-feature android:name="android.hardware.camera.autofocus" android:required="true" />
-            <uses-feature android:name="android.hardware.usb" android:required="true" />
+            <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+            <uses-feature android:name="android.hardware.usb" android:required="false" />
         </config-file>
     </platform>
 </plugin>

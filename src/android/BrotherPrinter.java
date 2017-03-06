@@ -191,7 +191,7 @@ public class BrotherPrinter extends CordovaPlugin {
                     result = new PluginResult(PluginResult.Status.ERROR,  "FAILED");
 
                      myPrinterInfo.printerModel  = PrinterInfo.Model.QL_820NWB;
-                     myPrinterInfo.port          = PrinterInfo.Port.NET;
+                     myPrinterInfo.port          = PrinterInfo.Port.BLUETOOTH;
                      myPrinterInfo.printMode     = PrinterInfo.PrintMode.ORIGINAL;
                      myPrinterInfo.orientation   = PrinterInfo.Orientation.PORTRAIT;
                      myPrinterInfo.paperSize     = PrinterInfo.PaperSize.CUSTOM;
