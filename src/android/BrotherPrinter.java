@@ -57,7 +57,9 @@ public class BrotherPrinter extends CordovaPlugin {
     private String ipAddress   = null;
     private String macAddress  = null;
     private Boolean searched   = false;
+    private Boolean wifiSearched = false;
     private Boolean found      = false;
+    private Boolean wifiFound = false;
 
     private ArrayList<String> mItems = null; // List of storing the printer's
 
@@ -78,6 +80,12 @@ public class BrotherPrinter extends CordovaPlugin {
             printViaSDK(args, callbackContext);
             return true;
         }
+
+        if ("printViaWifiInfra".equals(action)) {
+            printViaWifiInfra(args, callbackContext);
+            return true;
+        }
+
         if ("findBluetoothPairedPrinters".equals(action)) {
             findBluetoothPairedPrinters(callbackContext);
             return true;
@@ -101,7 +109,7 @@ public class BrotherPrinter extends CordovaPlugin {
             public void run() {
                 try{
 
-                    searched = true;
+                    wifiSearched = true;
 
                     NetPrinter[] netPrinters = enumerateNetPrinters();
                     int netPrinterCount = netPrinters.length;
@@ -111,7 +119,7 @@ public class BrotherPrinter extends CordovaPlugin {
                     netPrintersList = new ArrayList<Map>();
 
                     if (netPrinterCount > 0) {
-                        found = true;
+                        wifiFound = true;
                         Log.d(TAG, "---- network printers found! ----");
 
                         for (int i = 0; i < netPrinterCount; i++) {
@@ -140,7 +148,7 @@ public class BrotherPrinter extends CordovaPlugin {
                         Log.d(TAG, "---- /network printers found! ----");
 
                     }else if (netPrinterCount == 0 ) {
-                        found = false;
+                        wifiFound = false;
                         Log.d(TAG, "!!!! No network printers found !!!!");
                     }
 
@@ -328,4 +336,74 @@ public class BrotherPrinter extends CordovaPlugin {
 
         }
     }
+
+
+
+    private void printViaWifiInfra(final JSONArray args, final CallbackContext callbackctx) {
+
+        final Bitmap bitmap = bmpFromBase64(args.optString(0, null), callbackctx);
+
+        if(!wifiSearched){
+            PluginResult result;
+            result = new PluginResult(PluginResult.Status.ERROR, "You must first run findNetworkPrinters() to search the network.");
+            callbackctx.sendPluginResult(result);
+        }
+
+        if(!wifiFound){
+            PluginResult result;
+            result = new PluginResult(PluginResult.Status.ERROR, "No printer was found. Aborting.");
+            callbackctx.sendPluginResult(result);
+        }
+
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try{
+
+                    Printer myPrinter = new Printer();
+                    PrinterInfo myPrinterInfo = new PrinterInfo();
+                    myPrinterInfo = myPrinter.getPrinterInfo();
+                    PluginResult result;
+                    result = new PluginResult(PluginResult.Status.ERROR,  "FAILED");
+
+                    myPrinterInfo.printerModel  = PrinterInfo.Model.QL_820NWB;
+                    myPrinterInfo.port          = PrinterInfo.Port.BLUETOOTH;
+                    myPrinterInfo.printMode     = PrinterInfo.PrintMode.ORIGINAL;
+                    myPrinterInfo.orientation   = PrinterInfo.Orientation.PORTRAIT;
+                    myPrinterInfo.paperSize     = PrinterInfo.PaperSize.CUSTOM;
+
+                    myPrinterInfo.labelNameIndex =  LabelInfo.QL700.valueOf("W62RB").ordinal();;
+                    myPrinterInfo.isAutoCut=true;
+                    myPrinterInfo.isCutAtEnd=true;
+                    myPrinterInfo.isHalfCut=true;
+                    myPrinterInfo.isSpecialTape= false;
+
+                    myPrinterInfo.ipAddress     = ipAddress;
+                    myPrinterInfo.macAddress    = macAddress;
+
+
+                    boolean isSet;
+                    isSet = myPrinter.setPrinterInfo(myPrinterInfo);
+
+                    if(bitmap == null){
+                        result = new PluginResult(PluginResult.Status.ERROR, " Bitmap creation failed");
+                        callbackctx.sendPluginResult(result);
+                    }
+
+                    PrinterStatus status = myPrinter.printImage(bitmap);
+                    result = new PluginResult(PluginResult.Status.OK, ""+status.errorCode);
+                    callbackctx.sendPluginResult(result);
+
+                }catch(Exception e){
+                    PluginResult result;
+                    result = new PluginResult(PluginResult.Status.ERROR,  "FAILED");
+                    callbackctx.sendPluginResult(result);
+
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+
+
 }
