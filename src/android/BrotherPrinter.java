@@ -38,6 +38,8 @@ import android.webkit.WebViewClient;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.app.PendingIntent;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 
 import com.brother.ptouch.sdk.LabelInfo;
 import com.brother.ptouch.sdk.NetPrinter;
@@ -73,6 +75,12 @@ public class BrotherPrinter extends CordovaPlugin {
             return true;
         }
 
+        if ("findBluetoothPairedPrinters".equals(action)) {
+            findBluetoothPairedPrinters(args, callbackContext);
+            return true;
+        }
+
+
         return false;
     }
 
@@ -82,6 +90,66 @@ public class BrotherPrinter extends CordovaPlugin {
         netPrinters = myPrinter.getNetPrinters(modelName);
         return netPrinters;
     }
+
+    /**
+     * get paired printers
+     */
+    private void findBluetoothPairedPrinters() {
+        // get the BluetoothAdapter
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter
+                .getDefaultAdapter();
+        if (bluetoothAdapter != null) {
+            if (!bluetoothAdapter.isEnabled()) {
+                Intent enableBtIntent = new Intent(
+                        BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                enableBtIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(enableBtIntent);
+            }
+        }else{
+            return;
+        }
+
+        try {
+            if (mItems != null) {
+                mItems.clear();
+            }
+            mItems = new ArrayList<String>();
+
+			/*
+             * if the paired devices exist, set the paired devices else set the
+			 * string of "No Bluetooth Printer."
+			 */
+            Set<BluetoothDevice> pairedDevices = bluetoothAdapter != null ? bluetoothAdapter
+                    .getBondedDevices() : null;
+            if ((pairedDevices != null ? pairedDevices.size() : 0) > 0) {
+
+                mBluetoothPrinter = new NetPrinter[pairedDevices.size()];
+                int i = 0;
+                for (BluetoothDevice device : pairedDevices) {
+                    String strDev = "";
+                    strDev += device.getName() + "\n" + device.getAddress();
+                    mItems.add(strDev);
+                    Log.d(TAG, strDev);
+
+                    i++;
+                }
+                Log.d(TAG, "---- /bluetooth printers found! ----");
+
+            } else {
+                Log.d(TAG, "---- /NO bluetooth printers found! ----");
+
+            }
+            // plugin result;
+            result = new PluginResult(PluginResult.Status.OK, args);
+
+            callbackctx.sendPluginResult(result);
+        } catch (Exception e) {
+            // plugin result
+            e.printStackTrace();
+
+        }
+    }
+
 
     private void findNetworkPrinters(final CallbackContext callbackctx) {
 
