@@ -17,7 +17,7 @@ import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
+import com.brother.ptouch.sdk.connection.BluetoothConnectionSetting;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -46,16 +46,20 @@ import com.brother.ptouch.sdk.NetPrinter;
 import com.brother.ptouch.sdk.Printer;
 import com.brother.ptouch.sdk.PrinterInfo;
 import com.brother.ptouch.sdk.PrinterStatus;
+import java.util.Set;
 
 public class BrotherPrinter extends CordovaPlugin {
 
     String modelName = "QL-820NWB";
     private NetPrinter[] netPrinters;
+    private NetPrinter[] mBluetoothPrinter; // array of storing Printer
 
     private String ipAddress   = null;
     private String macAddress  = null;
     private Boolean searched   = false;
     private Boolean found      = false;
+
+    private ArrayList<String> mItems = null; // List of storing the printer's
 
     //token to make it easy to grep logcat
     private static final String TAG = "print";
@@ -74,12 +78,10 @@ public class BrotherPrinter extends CordovaPlugin {
             printViaSDK(args, callbackContext);
             return true;
         }
-
         if ("findBluetoothPairedPrinters".equals(action)) {
-            findBluetoothPairedPrinters(args, callbackContext);
+            findBluetoothPairedPrinters(callbackContext);
             return true;
         }
-
 
         return false;
     }
@@ -91,64 +93,6 @@ public class BrotherPrinter extends CordovaPlugin {
         return netPrinters;
     }
 
-    /**
-     * get paired printers
-     */
-    private void findBluetoothPairedPrinters() {
-        // get the BluetoothAdapter
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter
-                .getDefaultAdapter();
-        if (bluetoothAdapter != null) {
-            if (!bluetoothAdapter.isEnabled()) {
-                Intent enableBtIntent = new Intent(
-                        BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                enableBtIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(enableBtIntent);
-            }
-        }else{
-            return;
-        }
-
-        try {
-            if (mItems != null) {
-                mItems.clear();
-            }
-            mItems = new ArrayList<String>();
-
-			/*
-             * if the paired devices exist, set the paired devices else set the
-			 * string of "No Bluetooth Printer."
-			 */
-            Set<BluetoothDevice> pairedDevices = bluetoothAdapter != null ? bluetoothAdapter
-                    .getBondedDevices() : null;
-            if ((pairedDevices != null ? pairedDevices.size() : 0) > 0) {
-
-                mBluetoothPrinter = new NetPrinter[pairedDevices.size()];
-                int i = 0;
-                for (BluetoothDevice device : pairedDevices) {
-                    String strDev = "";
-                    strDev += device.getName() + "\n" + device.getAddress();
-                    mItems.add(strDev);
-                    Log.d(TAG, strDev);
-
-                    i++;
-                }
-                Log.d(TAG, "---- /bluetooth printers found! ----");
-
-            } else {
-                Log.d(TAG, "---- /NO bluetooth printers found! ----");
-
-            }
-            // plugin result;
-            result = new PluginResult(PluginResult.Status.OK, args);
-
-            callbackctx.sendPluginResult(result);
-        } catch (Exception e) {
-            // plugin result
-            e.printStackTrace();
-
-        }
-    }
 
 
     private void findNetworkPrinters(final CallbackContext callbackctx) {
@@ -183,19 +127,19 @@ public class BrotherPrinter extends CordovaPlugin {
 
                             netPrintersList.add(netPrinter);
 
-                            Log.d(TAG, 
-                                        " idx:    " + Integer.toString(i)
-                                    + "\n model:  " + netPrinters[i].modelName
-                                    + "\n ip:     " + netPrinters[i].ipAddress
-                                    + "\n mac:    " + netPrinters[i].macAddress
-                                    + "\n serial: " + netPrinters[i].serNo
-                                    + "\n name:   " + netPrinters[i].nodeName
-                                 );
+                            Log.d(TAG,
+                                    " idx:    " + Integer.toString(i)
+                                            + "\n model:  " + netPrinters[i].modelName
+                                            + "\n ip:     " + netPrinters[i].ipAddress
+                                            + "\n mac:    " + netPrinters[i].macAddress
+                                            + "\n serial: " + netPrinters[i].serNo
+                                            + "\n name:   " + netPrinters[i].nodeName
+                            );
                         }
 
                         Log.d(TAG, "---- /network printers found! ----");
 
-                    }else if (netPrinterCount == 0 ) { 
+                    }else if (netPrinterCount == 0 ) {
                         found = false;
                         Log.d(TAG, "!!!! No network printers found !!!!");
                     }
@@ -212,7 +156,7 @@ public class BrotherPrinter extends CordovaPlugin {
 
                     callbackctx.sendPluginResult(result);
 
-                }catch(Exception e){    
+                }catch(Exception e){
                     e.printStackTrace();
                 }
 
@@ -226,7 +170,7 @@ public class BrotherPrinter extends CordovaPlugin {
         try{
             byte[] bytes = Base64.decode(base64, Base64.DEFAULT);
             return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-        }catch(Exception e){    
+        }catch(Exception e){
             e.printStackTrace();
             return null;
         }
@@ -256,45 +200,132 @@ public class BrotherPrinter extends CordovaPlugin {
                     PrinterInfo myPrinterInfo = new PrinterInfo();
                     myPrinterInfo = myPrinter.getPrinterInfo();
                     PluginResult result;
-                    result = new PluginResult(PluginResult.Status.ERROR,  "FAILED");
+                    myPrinterInfo.printerModel  = PrinterInfo.Model.QL_820NWB;
+                    myPrinterInfo.port          = PrinterInfo.Port.BLUETOOTH;;
+                    myPrinterInfo.printMode     = PrinterInfo.PrintMode.ORIGINAL;
+                    myPrinterInfo.orientation   = PrinterInfo.Orientation.PORTRAIT;
+                    myPrinterInfo.paperSize     = PrinterInfo.PaperSize.CUSTOM;
 
-                     myPrinterInfo.printerModel  = PrinterInfo.Model.QL_820NWB;
-                     myPrinterInfo.port          = PrinterInfo.Port.BLUETOOTH;
-                     myPrinterInfo.printMode     = PrinterInfo.PrintMode.ORIGINAL;
-                     myPrinterInfo.orientation   = PrinterInfo.Orientation.PORTRAIT;
-                     myPrinterInfo.paperSize     = PrinterInfo.PaperSize.CUSTOM;
+                    myPrinterInfo.labelNameIndex =  LabelInfo.QL700.valueOf("W62RB").ordinal();
+                    myPrinterInfo.isAutoCut=true;
+                    myPrinterInfo.isCutAtEnd=true;
+                    myPrinterInfo.isHalfCut=true;
+                    myPrinterInfo.isSpecialTape= false;
 
-                     myPrinterInfo.labelNameIndex =  LabelInfo.QL700.valueOf("W62RB").ordinal();;
-                     myPrinterInfo.isAutoCut=true;
-                     myPrinterInfo.isCutAtEnd=true;
-                     myPrinterInfo.isHalfCut=true;
-                     myPrinterInfo.isSpecialTape= false;
-
-                     myPrinterInfo.ipAddress     = ipAddress;
-                     myPrinterInfo.macAddress    = macAddress;
-
+                    myPrinterInfo.macAddress= macAddress;
 
                     boolean isSet;
                     isSet = myPrinter.setPrinterInfo(myPrinterInfo);
 
                     if(bitmap == null){
-                      result = new PluginResult(PluginResult.Status.ERROR, " Bitmap creation failed");
-                      callbackctx.sendPluginResult(result);
+                        result = new PluginResult(PluginResult.Status.ERROR, " Bitmap creation failed");
+                        callbackctx.sendPluginResult(result);
                     }
 
+                    BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+                    BluetoothConnectionSetting.setBluetoothAdapter(bluetoothAdapter);
+
                     PrinterStatus status = myPrinter.printImage(bitmap);
-                    result = new PluginResult(PluginResult.Status.OK, ""+status.errorCode);
+
+                    String status_code = ""+status.errorCode;
+
+                    result = new PluginResult(PluginResult.Status.OK, status_code);
+
                     callbackctx.sendPluginResult(result);
 
                 }catch(Exception e){
+
                     PluginResult result;
-                    result = new PluginResult(PluginResult.Status.ERROR,  "FAILED");
+                    e.printStackTrace();
+
+                    result = new PluginResult(PluginResult.Status.ERROR, "Failed to print with bluetooth");
                     callbackctx.sendPluginResult(result);
 
-                    e.printStackTrace();
                 }
             }
         });
     }
 
+
+    /**
+     * get paired printers
+     */
+    private void findBluetoothPairedPrinters(final CallbackContext callbackctx) {
+
+        // get the BluetoothAdapter
+
+
+        searched = true;
+
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter
+                .getDefaultAdapter();
+        if (bluetoothAdapter != null) {
+            if (!bluetoothAdapter.isEnabled()) {
+                Intent enableBtIntent = new Intent(
+                        BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                enableBtIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                /** startActivity(enableBtIntent);**/
+            }
+        }else{
+            PluginResult result;
+            result = new PluginResult(PluginResult.Status.ERROR, "No BluetoothAdapter found");
+            callbackctx.sendPluginResult(result);
+
+            return;
+        }
+
+        try {
+
+            mItems = new ArrayList<String>();
+            JSONArray args = new JSONArray();
+			/*
+             * if the paired devices exist, set the paired devices else set the
+			 * string of "No Bluetooth Printer."
+			 */
+            Set<BluetoothDevice> pairedDevices = bluetoothAdapter != null ? bluetoothAdapter.getBondedDevices() : null;
+            if ((pairedDevices != null ? pairedDevices.size() : 0) > 0) {
+                found = true;
+
+                args.put(true);
+
+                mBluetoothPrinter = new NetPrinter[pairedDevices.size()];
+                int i = 0;
+                String strDev = "";
+
+                for (BluetoothDevice device : pairedDevices) {
+                    strDev = "";
+                    strDev += device.getAddress();
+                    macAddress = device.getAddress();
+                    mItems.add(strDev);
+                    Log.d(TAG, strDev);
+
+                    i++;
+                }
+
+                args.put(mItems);
+
+                Log.d(TAG, "---- /bluetooth printers found! ----");
+
+            } else {
+                found = false;
+
+                args.put(false);
+                Log.d(TAG, "---- /NO bluetooth printers found! ----");
+
+            }
+            // plugin result;
+
+            PluginResult result;
+            result = new PluginResult(PluginResult.Status.OK, args);
+
+            callbackctx.sendPluginResult(result);
+        } catch (Exception e) {
+            PluginResult result;
+            e.printStackTrace();
+
+            result = new PluginResult(PluginResult.Status.ERROR, "Can't find bluetooth paired devices");
+            callbackctx.sendPluginResult(result);
+
+        }
+    }
 }
