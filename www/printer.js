@@ -16,19 +16,19 @@ BrotherPrinter.prototype = {
         cordova.exec(callbackFn, null, 'BrotherPrinter', 'findBluetoothPairedPrinters', [])
     },
 
-    printViaSDK: function (data, callback) {
+    printViaSDK: function (data, numberOfCopies, callback) {
         if (!data || !data.length) {
             console.log('No data passed in. Expects a bitmap.')
             return
         }
-        cordova.exec(callback, function(err){console.log('error: '+err)}, 'BrotherPrinter', 'printViaSDK', [data])
+        cordova.exec(callback, function(err){console.log('error: '+err)}, 'BrotherPrinter', 'printViaSDK', [data, numberOfCopies])
     },
-    printViaWifiInfra: function (data, callback) {
+    printViaWifiInfra: function (data, numberOfCopies, callback) {
         if (!data || !data.length) {
             console.log('No data passed in. Expects a bitmap.')
             return
         }
-        cordova.exec(callback, function(err){console.log('error: '+err)}, 'BrotherPrinter', 'printViaWifiInfra', [data])
+        cordova.exec(callback, function(err){console.log('error: '+err)}, 'BrotherPrinter', 'printViaWifiInfra', [data, numberOfCopies])
     }
 }
 var plugin = new BrotherPrinter()

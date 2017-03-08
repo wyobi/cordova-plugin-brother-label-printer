@@ -187,6 +187,7 @@ public class BrotherPrinter extends CordovaPlugin {
     private void printViaSDK(final JSONArray args, final CallbackContext callbackctx) {
 
         final Bitmap bitmap = bmpFromBase64(args.optString(0, null), callbackctx);
+        final int numberOfCopies = args.optInt(1, 1);
 
         if(!searched){
             PluginResult result;
@@ -219,6 +220,7 @@ public class BrotherPrinter extends CordovaPlugin {
                     myPrinterInfo.isCutAtEnd=true;
                     myPrinterInfo.isHalfCut=true;
                     myPrinterInfo.isSpecialTape= false;
+                    myPrinterInfo.numberOfCopies = numberOfCopies;
 
                     myPrinterInfo.macAddress= macAddress;
 
@@ -342,6 +344,7 @@ public class BrotherPrinter extends CordovaPlugin {
     private void printViaWifiInfra(final JSONArray args, final CallbackContext callbackctx) {
 
         final Bitmap bitmap = bmpFromBase64(args.optString(0, null), callbackctx);
+        final int numberOfCopies = args.optInt(1, 1);
 
         if(!wifiSearched){
             PluginResult result;
@@ -363,10 +366,9 @@ public class BrotherPrinter extends CordovaPlugin {
                     PrinterInfo myPrinterInfo = new PrinterInfo();
                     myPrinterInfo = myPrinter.getPrinterInfo();
                     PluginResult result;
-                    result = new PluginResult(PluginResult.Status.ERROR,  "FAILED");
 
                     myPrinterInfo.printerModel  = PrinterInfo.Model.QL_820NWB;
-                    myPrinterInfo.port          = PrinterInfo.Port.BLUETOOTH;
+                    myPrinterInfo.port          = PrinterInfo.Port.NET;
                     myPrinterInfo.printMode     = PrinterInfo.PrintMode.ORIGINAL;
                     myPrinterInfo.orientation   = PrinterInfo.Orientation.PORTRAIT;
                     myPrinterInfo.paperSize     = PrinterInfo.PaperSize.CUSTOM;
@@ -376,6 +378,7 @@ public class BrotherPrinter extends CordovaPlugin {
                     myPrinterInfo.isCutAtEnd=true;
                     myPrinterInfo.isHalfCut=true;
                     myPrinterInfo.isSpecialTape= false;
+                    myPrinterInfo.numberOfCopies = numberOfCopies;
 
                     myPrinterInfo.ipAddress     = ipAddress;
                     myPrinterInfo.macAddress    = macAddress;
@@ -395,15 +398,13 @@ public class BrotherPrinter extends CordovaPlugin {
 
                 }catch(Exception e){
                     PluginResult result;
+                    e.printStackTrace();
                     result = new PluginResult(PluginResult.Status.ERROR,  "FAILED");
                     callbackctx.sendPluginResult(result);
 
-                    e.printStackTrace();
                 }
             }
         });
     }
-
-
 
 }
