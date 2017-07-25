@@ -1,0 +1,28 @@
+{
+  "name": "cordova-brother-label-printer",
+  "version": "1.0.0",
+  "description": "Cordova plugin for brother printers",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/momzor/cordova-brother-label-printer.git"
+  },
+  "keywords": [
+    "cordova",
+    "plugin",
+    "brother",
+    "label",
+    "printer",
+    "sql",
+    "820"
+  ],
+  "author": "mohamed.benaida forked from gordol",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/momzor/cordova-brother-label-printer/issues"
+  },
+  "homepage": "https://github.com/momzor/cordova-brother-label-printer#readme"
+}
