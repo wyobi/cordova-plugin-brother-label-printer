@@ -40,6 +40,9 @@ import android.hardware.usb.UsbManager;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.Manifest;
+import android.os.Build;
+import android.content.pm.PackageManager;
 
 import com.brother.ptouch.sdk.LabelInfo;
 import com.brother.ptouch.sdk.NetPrinter;
@@ -51,6 +54,8 @@ import java.util.Set;
 public class BrotherPrinter extends CordovaPlugin {
 
     String modelName = "QL-820NWB";
+
+    public static final int PERMISSION_WRITE_EXTERNAL_STORAGE = 1;
     private NetPrinter[] netPrinters;
     private NetPrinter[] mBluetoothPrinter; // array of storing Printer
 
@@ -67,6 +72,18 @@ public class BrotherPrinter extends CordovaPlugin {
     private static final String TAG = "print";
 
     private CallbackContext callbackctx;
+
+
+
+    public void pluginInitialize() {
+                            Log.d(TAG, "OMG");
+
+        super.pluginInitialize();
+        if (!isPermitWriteStorage()) {
+            cordova.requestPermission(this,PERMISSION_WRITE_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+     }
+
 
     @Override
     public boolean execute (String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
@@ -101,6 +118,16 @@ public class BrotherPrinter extends CordovaPlugin {
         return netPrinters;
     }
 
+
+    private boolean isPermitWriteStorage() {
+           if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+             if (cordova.getActivity().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                     != PackageManager.PERMISSION_GRANTED) {
+                 return false;
+             }
+         }
+         return true;
+     }
 
 
     private void findNetworkPrinters(final CallbackContext callbackctx) {
