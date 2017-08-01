@@ -53,7 +53,7 @@ import java.util.Set;
 
 public class BrotherPrinter extends CordovaPlugin {
 
-    String modelName = "QL-820NWB";
+    String modelName = "QL-710W";
 
     public static final int PERMISSION_WRITE_EXTERNAL_STORAGE = 1;
     private NetPrinter[] netPrinters;
@@ -76,13 +76,13 @@ public class BrotherPrinter extends CordovaPlugin {
 
 
     public void pluginInitialize() {
-                            Log.d(TAG, "OMG");
+        Log.d(TAG, "OMG");
 
         super.pluginInitialize();
         if (!isPermitWriteStorage()) {
             cordova.requestPermission(this,PERMISSION_WRITE_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
-     }
+    }
 
 
     @Override
@@ -120,14 +120,14 @@ public class BrotherPrinter extends CordovaPlugin {
 
 
     private boolean isPermitWriteStorage() {
-           if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-             if (cordova.getActivity().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                     != PackageManager.PERMISSION_GRANTED) {
-                 return false;
-             }
-         }
-         return true;
-     }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (cordova.getActivity().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 
     private void findNetworkPrinters(final CallbackContext callbackctx) {
@@ -193,6 +193,7 @@ public class BrotherPrinter extends CordovaPlugin {
 
                 }catch(Exception e){
                     e.printStackTrace();
+                    Log.e(TAG, "!!!! Exception !!!!=== ", e);
                 }
 
             }
@@ -207,6 +208,7 @@ public class BrotherPrinter extends CordovaPlugin {
             return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
         }catch(Exception e){
             e.printStackTrace();
+            Log.e(TAG, "!!!! Exception !!!!=== ", e);
             return null;
         }
     }
@@ -236,13 +238,13 @@ public class BrotherPrinter extends CordovaPlugin {
                     PrinterInfo myPrinterInfo = new PrinterInfo();
                     myPrinterInfo = myPrinter.getPrinterInfo();
                     PluginResult result;
-                    myPrinterInfo.printerModel  = PrinterInfo.Model.QL_820NWB;
-                    myPrinterInfo.port          = PrinterInfo.Port.BLUETOOTH;;
+                    myPrinterInfo.printerModel  = PrinterInfo.Model.QL_710W;
+                    myPrinterInfo.port          = PrinterInfo.Port.NET;;
                     myPrinterInfo.printMode     = PrinterInfo.PrintMode.ORIGINAL;
                     myPrinterInfo.orientation   = PrinterInfo.Orientation.PORTRAIT;
                     myPrinterInfo.paperSize     = PrinterInfo.PaperSize.CUSTOM;
 
-                    myPrinterInfo.labelNameIndex =  LabelInfo.QL700.valueOf("W62RB").ordinal();
+                    myPrinterInfo.labelNameIndex =  LabelInfo.QL700.W62.ordinal();
                     myPrinterInfo.isAutoCut=true;
                     myPrinterInfo.isCutAtEnd=true;
                     myPrinterInfo.isHalfCut=true;
@@ -274,7 +276,7 @@ public class BrotherPrinter extends CordovaPlugin {
 
                     PluginResult result;
                     e.printStackTrace();
-
+                    Log.e(TAG, "!!!! Exception !!!!=== ", e);
                     result = new PluginResult(PluginResult.Status.ERROR, "Failed to print with bluetooth");
                     callbackctx.sendPluginResult(result);
 
@@ -359,7 +361,7 @@ public class BrotherPrinter extends CordovaPlugin {
         } catch (Exception e) {
             PluginResult result;
             e.printStackTrace();
-
+            Log.e(TAG, "!!!! Exception !!!!=== ", e);
             result = new PluginResult(PluginResult.Status.ERROR, "Can't find bluetooth paired devices");
             callbackctx.sendPluginResult(result);
 
@@ -394,13 +396,13 @@ public class BrotherPrinter extends CordovaPlugin {
                     myPrinterInfo = myPrinter.getPrinterInfo();
                     PluginResult result;
 
-                    myPrinterInfo.printerModel  = PrinterInfo.Model.QL_820NWB;
+                    myPrinterInfo.printerModel  = PrinterInfo.Model.QL_710W;
                     myPrinterInfo.port          = PrinterInfo.Port.NET;
                     myPrinterInfo.printMode     = PrinterInfo.PrintMode.ORIGINAL;
                     myPrinterInfo.orientation   = PrinterInfo.Orientation.PORTRAIT;
                     myPrinterInfo.paperSize     = PrinterInfo.PaperSize.CUSTOM;
 
-                    myPrinterInfo.labelNameIndex =  LabelInfo.QL700.valueOf("W62RB").ordinal();;
+                    myPrinterInfo.labelNameIndex =  LabelInfo.QL700.W62.ordinal();;
                     myPrinterInfo.isAutoCut=true;
                     myPrinterInfo.isCutAtEnd=true;
                     myPrinterInfo.isHalfCut=true;
@@ -426,6 +428,7 @@ public class BrotherPrinter extends CordovaPlugin {
                 }catch(Exception e){
                     PluginResult result;
                     e.printStackTrace();
+                    Log.e(TAG, "!!!! Exception !!!!=== ", e);
                     result = new PluginResult(PluginResult.Status.ERROR,  "FAILED");
                     callbackctx.sendPluginResult(result);
 
