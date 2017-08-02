@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.util.Log;
 
+import com.brother.ptouch.sdk.LabelInfo;
 import com.brother.ptouch.sdk.NetPrinter;
 import com.brother.ptouch.sdk.Printer;
 import com.brother.ptouch.sdk.PrinterInfo;
@@ -24,7 +25,7 @@ import static com.momzor.cordova.plugin.brotherPrinter.PrinterUtil.LOG_TAG;
 
 public class BrotherPrinter extends CordovaPlugin {
 
-    private PrintJobSetting printJobSetting = new PrintJobSetting("QL-710W", PrinterInfo.Model.QL_710W);
+    private PrintJobSetting printJobSetting = new PrintJobSetting("QL-710W", PrinterInfo.Model.QL_710W, LabelInfo.QL700.W62.ordinal(), PrinterInfo.Orientation.LANDSCAPE);
 
     private Boolean blueToothPrinterFound = false;
     private Boolean networkPrinterFound = false;
@@ -113,12 +114,6 @@ public class BrotherPrinter extends CordovaPlugin {
 
                     Printer myPrinter = PrinterUtil.initPrinterProperties(printJobSetting);
 
-                    PluginResult result;
-                    if (bitmap == null) {
-                        result = new PluginResult(PluginResult.Status.ERROR, " Bitmap creation failed");
-                        callbackctx.sendPluginResult(result);
-                    }
-
                     BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
                     BluetoothConnectionSetting.setBluetoothAdapter(bluetoothAdapter);
 
@@ -126,7 +121,7 @@ public class BrotherPrinter extends CordovaPlugin {
 
                     String status_code = "" + status.errorCode;
 
-                    result = new PluginResult(PluginResult.Status.OK, status_code);
+                    PluginResult result = new PluginResult(PluginResult.Status.OK, status_code);
 
                     callbackctx.sendPluginResult(result);
 
@@ -174,7 +169,7 @@ public class BrotherPrinter extends CordovaPlugin {
                 for (BluetoothDevice device : pairedDevices) {
                     printJobSetting.macAddress = device.getAddress();
                     Log.d(LOG_TAG, device.getAddress());
-                    
+
                 }
 
                 Log.d(LOG_TAG, "---- /bluetooth printers found! ----");

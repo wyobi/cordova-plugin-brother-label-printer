@@ -5,25 +5,18 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
-import android.os.Environment;
 import android.support.annotation.NonNull;
-import android.support.v4.os.EnvironmentCompat;
 import android.util.Base64;
 import android.util.Log;
 
-import com.brother.ptouch.sdk.LabelInfo;
 import com.brother.ptouch.sdk.NetPrinter;
 import com.brother.ptouch.sdk.Printer;
 import com.brother.ptouch.sdk.PrinterInfo;
 
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 
@@ -77,17 +70,18 @@ public class PrinterUtil {
     }
 
     @NonNull
-    protected static final Printer initPrinterProperties(PrintJobSetting printJobSetting) {
+    protected static final Printer initPrinterProperties(com.momzor.cordova.plugin.brotherPrinter.PrintJobSetting printJobSetting) {
         Printer myPrinter = new Printer();
         PrinterInfo myPrinterInfo = myPrinter.getPrinterInfo();
 
         myPrinterInfo.printerModel = printJobSetting.model;
         myPrinterInfo.port = printJobSetting.port;
-        myPrinterInfo.printMode = PrinterInfo.PrintMode.ORIGINAL;
-        myPrinterInfo.orientation = PrinterInfo.Orientation.PORTRAIT;
+        myPrinterInfo.printMode = PrinterInfo.PrintMode.FIT_TO_PAPER;
+
+        myPrinterInfo.orientation = printJobSetting.orientation;
         myPrinterInfo.paperSize = PrinterInfo.PaperSize.CUSTOM;
 
-        myPrinterInfo.labelNameIndex = LabelInfo.QL700.W62.ordinal();
+        myPrinterInfo.labelNameIndex = printJobSetting.labelNameIndex;
 
         myPrinterInfo.isAutoCut = true;
         myPrinterInfo.isCutAtEnd = true;
