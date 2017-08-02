@@ -33,6 +33,13 @@ public class PrinterUtil {
      */
     protected static final Bitmap toBitmap(String base64EncodedImageOrPdf, final CallbackContext callbackctx) {
         try {
+
+            int separatorIdx= base64EncodedImageOrPdf.indexOf(',');
+
+            if (separatorIdx != -1) {
+                base64EncodedImageOrPdf = base64EncodedImageOrPdf.substring(separatorIdx);
+            }
+
             byte[] binData = Base64.decode(base64EncodedImageOrPdf, Base64.DEFAULT);
             Bitmap bitmap = BitmapFactory.decodeByteArray(binData, 0, binData.length);
             if (bitmap == null) {
