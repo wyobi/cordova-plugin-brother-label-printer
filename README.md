@@ -13,7 +13,7 @@ Already bundled is the following version: v3.0.4 (5/18/2016) which is in the `sr
 In your Cordova project, run the following command to install the plugin.
 
 ```
-cordova plugin add https://github.com/momzor/cordova-brother-label-printer
+cordova plugin add https://github.com/MenelicSoftware/cordova-plugin-brother-label-printer.git
 ```
 
 And then read [usage](#usage) below.
@@ -28,7 +28,7 @@ You can [read more about Android plugin development for Cordova here](https://co
 
 Read here to [learn how to use Cordova Plugins](https://cordova.apache.org/docs/en/latest/guide/cli/index.html#add-plugins).
 
-If you still have questions, please use the [issue tracker](https://github.com/3screens/cordova-brother-label-printer/issues). Please look at existing issues, and if your question is not answered yet, feel free to open a new issue and I'm happy to assist.
+If you still have questions, please use the [issue tracker](https://github.com/MenelicSoftware/cordova-plugin-brother-label-printer.git/issues). Please look at existing issues, and if your question is not answered yet, feel free to open a new issue and I'm happy to assist.
 
 
 ## Target mobile printers:
