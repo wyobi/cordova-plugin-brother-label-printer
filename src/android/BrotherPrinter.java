@@ -60,7 +60,7 @@ public class BrotherPrinter extends CordovaPlugin {
 
         if (netPrinterCount > 0) {
 
-            Log.d(LOG_TAG, "---- network printers blueToothPrinterFound! ----");
+            Log.d(LOG_TAG, "---- network printers found! ----");
 
             for (int i = 0; i < netPrinterCount; i++) {
 
@@ -105,7 +105,7 @@ public class BrotherPrinter extends CordovaPlugin {
 
                     if (!blueToothPrinterFound) {
                         PluginResult result;
-                        result = new PluginResult(PluginResult.Status.ERROR, "No printer was blueToothPrinterFound. Aborting.");
+                        result = new PluginResult(PluginResult.Status.ERROR, "No printer was found. Aborting.");
                         callbackctx.sendPluginResult(result);
                     }
 
@@ -179,7 +179,7 @@ public class BrotherPrinter extends CordovaPlugin {
 
             } else {
                 blueToothPrinterFound = false;
-                Log.d(LOG_TAG, "---- /NO bluetooth printers blueToothPrinterFound! ----");
+                Log.d(LOG_TAG, "---- /NO bluetooth printers found! ----");
             }
 
         } catch (Exception e) {
