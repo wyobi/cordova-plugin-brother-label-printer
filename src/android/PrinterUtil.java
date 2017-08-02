@@ -1,3 +1,5 @@
+package com.momzor.cordova.plugin.brotherPrinter;
+
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;

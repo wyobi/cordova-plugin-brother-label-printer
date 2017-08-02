@@ -1,3 +1,5 @@
+package com.momzor.cordova.plugin.brotherPrinter;
+
 import com.brother.ptouch.sdk.PrinterInfo;
 
 public class PrintJobSetting {
