@@ -25,6 +25,11 @@ import static com.momzor.cordova.plugin.brotherPrinter.PrinterUtil.LOG_TAG;
 
 public class BrotherPrinter extends CordovaPlugin {
 
+    /**
+     * TODO: all these printerJobSetting should be parameters passed to {@link #printViaBluetooth(JSONArray, CallbackContext)} and {@link #printViaNetwork(JSONArray, CallbackContext)}
+     * This will give max flexibility and support all Brother PJ-*, MW-*, RJ-*, TD-*, QL-*, RJ-* and PT-* printers without xode change
+     * ,
+     */
     private PrintJobSetting printJobSetting = new PrintJobSetting("QL-710W", PrinterInfo.Model.QL_710W, LabelInfo.QL700.W62.ordinal(), PrinterInfo.Orientation.LANDSCAPE);
 
     private Boolean blueToothPrinterFound = false;
@@ -41,13 +46,13 @@ public class BrotherPrinter extends CordovaPlugin {
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
 
-        if ("printViaBluetooth".equals(action)) {
-            printViaBluetooth(args, callbackContext);
+        if ("printViaNetwork".equals(action)) {
+            printViaNetwork(args, callbackContext);
             return true;
         }
 
-        if ("printViaNetwork".equals(action)) {
-            printViaNetwork(args, callbackContext);
+        if ("printViaBluetooth".equals(action)) {
+            printViaBluetooth(args, callbackContext);
             return true;
         }
 
@@ -55,39 +60,45 @@ public class BrotherPrinter extends CordovaPlugin {
     }
 
 
-    private void findNetworkPrinters() {
+    private void printViaNetwork(final JSONArray args, final CallbackContext callbackctx) {
 
-        NetPrinter[] netPrinters = PrinterUtil.enumerateNetPrinters(printJobSetting.modelName);
+        printJobSetting.numberOfCopies = args.optInt(1, 1);
+        printJobSetting.port = PrinterInfo.Port.NET;
 
-        int netPrinterCount = netPrinters.length;
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
 
-        if (netPrinterCount > 0) {
+                try {
 
-            Log.d(LOG_TAG, "---- network printers found! ----");
+                    final Bitmap bitmap = PrinterUtil.toBitmap(args.optString(0, null), callbackctx);
+                    if (bitmap == null) {
+                        return;
+                    }
 
-            for (int i = 0; i < netPrinterCount; i++) {
+                    //TODO: integrate retry N times(configurable) before giving up
+                    findNetworkPrinters();
 
-                printJobSetting.ipAddress = netPrinters[i].ipAddress;
-                printJobSetting.macAddress = netPrinters[i].macAddress;
+                    if (!networkPrinterFound) {
+                        PluginResult result = new PluginResult(PluginResult.Status.ERROR, "No Network printer was found. Aborting.");
+                        callbackctx.sendPluginResult(result);
+                        return;
+                    }
 
+                    Printer myPrinter = PrinterUtil.initPrinterProperties(printJobSetting);
 
-                Log.d(LOG_TAG,
-                        " idx:    " + Integer.toString(i)
-                                + "\n model:  " + netPrinters[i].modelName
-                                + "\n ip:     " + netPrinters[i].ipAddress
-                                + "\n mac:    " + netPrinters[i].macAddress
-                                + "\n serial: " + netPrinters[i].serNo
-                                + "\n name:   " + netPrinters[i].nodeName
-                );
+                    PrinterStatus status = myPrinter.printImage(bitmap);
+                    PluginResult result = new PluginResult(PluginResult.Status.OK, String.valueOf(status.errorCode));
+                    callbackctx.sendPluginResult(result);
+
+                } catch (Exception e) {
+                    PluginResult result;
+                    Log.e(LOG_TAG, "!!!! Exception while printing !!!!=== ", e);
+                    result = new PluginResult(PluginResult.Status.ERROR, "FAILED : " + e);
+                    callbackctx.sendPluginResult(result);
+
+                }
             }
-
-            networkPrinterFound = true;
-            Log.d(LOG_TAG, "---- /network printers found! ----");
-
-        } else if (netPrinterCount == 0) {
-            networkPrinterFound = false;
-            Log.d(LOG_TAG, "!!!! No network printers found !!!!");
-        }
+        });
     }
 
     private void printViaBluetooth(final JSONArray args, final CallbackContext callbackctx) {
@@ -138,6 +149,41 @@ public class BrotherPrinter extends CordovaPlugin {
     }
 
 
+    private void findNetworkPrinters() {
+
+        NetPrinter[] netPrinters = PrinterUtil.enumerateNetPrinters(printJobSetting.modelName);
+
+        int netPrinterCount = netPrinters.length;
+
+        if (netPrinterCount > 0) {
+
+            Log.d(LOG_TAG, "---- network printers found! ----");
+
+            for (int i = 0; i < netPrinterCount; i++) {
+
+                printJobSetting.ipAddress = netPrinters[i].ipAddress;
+                printJobSetting.macAddress = netPrinters[i].macAddress;
+
+
+                Log.d(LOG_TAG,
+                        " idx:    " + Integer.toString(i)
+                                + "\n model:  " + netPrinters[i].modelName
+                                + "\n ip:     " + netPrinters[i].ipAddress
+                                + "\n mac:    " + netPrinters[i].macAddress
+                                + "\n serial: " + netPrinters[i].serNo
+                                + "\n name:   " + netPrinters[i].nodeName
+                );
+            }
+
+            networkPrinterFound = true;
+            Log.d(LOG_TAG, "---- /network printers found! ----");
+
+        } else if (netPrinterCount == 0) {
+            networkPrinterFound = false;
+            Log.d(LOG_TAG, "!!!! No network printers found !!!!");
+        }
+    }
+
     /**
      * get paired printers
      */
@@ -187,48 +233,5 @@ public class BrotherPrinter extends CordovaPlugin {
             callbackctx.sendPluginResult(result);
         }
     }
-
-
-    private void printViaNetwork(final JSONArray args, final CallbackContext callbackctx) {
-
-        printJobSetting.numberOfCopies = args.optInt(1, 1);
-        printJobSetting.port = PrinterInfo.Port.NET;
-
-        cordova.getThreadPool().execute(new Runnable() {
-            public void run() {
-
-                try {
-
-                    final Bitmap bitmap = PrinterUtil.toBitmap(args.optString(0, null), callbackctx);
-                    if (bitmap == null) {
-                        return;
-                    }
-
-                    //TODO: integrate retry N times(configurable) before giving up
-                    findNetworkPrinters();
-
-                    if (!networkPrinterFound) {
-                        PluginResult result = new PluginResult(PluginResult.Status.ERROR, "No Network printer was found. Aborting.");
-                        callbackctx.sendPluginResult(result);
-                        return;
-                    }
-
-                    Printer myPrinter = PrinterUtil.initPrinterProperties(printJobSetting);
-
-                    PrinterStatus status = myPrinter.printImage(bitmap);
-                    PluginResult result = new PluginResult(PluginResult.Status.OK, String.valueOf(status.errorCode));
-                    callbackctx.sendPluginResult(result);
-
-                } catch (Exception e) {
-                    PluginResult result;
-                    Log.e(LOG_TAG, "!!!! Exception while printing !!!!=== ", e);
-                    result = new PluginResult(PluginResult.Status.ERROR, "FAILED : " + e);
-                    callbackctx.sendPluginResult(result);
-
-                }
-            }
-        });
-    }
-
 
 }
