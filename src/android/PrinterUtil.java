@@ -1,6 +1,7 @@
 package com.momzor.cordova.plugin.brotherPrinter;
 
 import android.Manifest;
+import android.bluetooth.BluetoothAdapter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,6 +13,7 @@ import android.util.Log;
 import com.brother.ptouch.sdk.NetPrinter;
 import com.brother.ptouch.sdk.Printer;
 import com.brother.ptouch.sdk.PrinterInfo;
+import com.brother.ptouch.sdk.connection.BluetoothConnectionSetting;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
@@ -34,10 +36,10 @@ public class PrinterUtil {
     protected static final Bitmap toBitmap(String base64EncodedImageOrPdf, final CallbackContext callbackctx) {
         try {
 
-            int separatorIdx= base64EncodedImageOrPdf.indexOf(',');
+            int separatorIdx = base64EncodedImageOrPdf.indexOf(',');
 
             if (separatorIdx != -1) {
-                base64EncodedImageOrPdf = base64EncodedImageOrPdf.substring(separatorIdx);
+                base64EncodedImageOrPdf = base64EncodedImageOrPdf.substring(separatorIdx + 1);
             }
 
             byte[] binData = Base64.decode(base64EncodedImageOrPdf, Base64.DEFAULT);
@@ -100,6 +102,11 @@ public class PrinterUtil {
 
         if (PrinterInfo.Port.NET.equals(printJobSetting.port)) {
             myPrinterInfo.ipAddress = printJobSetting.ipAddress;
+
+        } else if (PrinterInfo.Port.BLUETOOTH.equals(printJobSetting.port)) {
+            //TODO: Investigate: do we really need this?
+            BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+            BluetoothConnectionSetting.setBluetoothAdapter(bluetoothAdapter);
         }
 
         myPrinter.setPrinterInfo(myPrinterInfo);
