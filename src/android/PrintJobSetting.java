@@ -60,7 +60,7 @@ public class PrintJobSetting {
             return p;
         }
 
-        throw new IllegalArgumentException("Unsupported port " + this.port);
+        throw new IllegalArgumentException("Unsupported port " + port);
     }
 
     private int toLabelIndexName(String labelName) {
@@ -74,6 +74,6 @@ public class PrintJobSetting {
             return label.ordinal();
         }
 
-        throw new IllegalArgumentException("Unsupported printer model " + this.modelName);
+        throw new IllegalArgumentException("Unsupported printer model " + labelName);
     }
 }

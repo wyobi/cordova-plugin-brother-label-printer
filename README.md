@@ -47,7 +47,7 @@ PT-E800W, PT-D800W, PT-E850TKW
 PT-P900W, PT-P950NW
 ```
 
-__Tested models:__ `QL-710NW`
+__Tested models:__ `QL-710NW`,`QL-820NWB`
 
 (if you have tried this with other models, please update this list and send a pull request)
 
@@ -56,8 +56,9 @@ __NOTE:__ Currently, you will need to adjust the `modelName` variable in `src/an
 
 ## Supported interfaces (by this plugin):
 ```
-Wi-Fi (Infrastructure mode)
-USB
+Wi-Fi/Wired Ethernet (Infrastructure mode)
+BlueTooth?
+USB?
 ```
 
 _The SDK also has Bluetooth support, but this is not integrated currently. Pull requests are welcomed..._
@@ -66,14 +67,15 @@ _The SDK also has Bluetooth support, but this is not integrated currently. Pull 
 
 See here for JS interfaces to the plugin: `www/printer.js`
 
-There are three available methods... 
+There is a single available method...
 
-* printViaBluetooth
-* printViaNetwork
-* sendUSBConfig
+```
+printLabel(base64ImageOrPdfToPrint, {"numberOfCopies":1, "orientation":"LANDSCAPE", "labelName":"W62RB", "modelName":"QL-820NBW", "port":"NET"})
+
+```
+For the meaning of each of these parameters, please see http://www.brother.com/product/dev/mobile/android/index.htm
+
 
 Currently, the last printer that is found will be the one targetted due to the way we're looping over the `netPrinters` array. This plugin could be extended to allow the user to select which printer they want to connect with... If this is desired, let me know, and I'll address when I get a chance, or better yet, send a pull request. The best way would either be to pass the printer IP/MAC to the printViaSDK method, or perhaps you could just pass an index to select the desired printer from the `netPrinters` list.
-
-__printViaNetwork/findViaBluetooth__ takes one parameter, which is a base64 encoded image (PDF, PNG, BMP, JPG). The result should be a status code that is passed directly from the SDK. The status codes are documnted in the Brother SDK Appendix in section 4.2.2.5.Error Code. If everything works, the response should be "ERROR_NONE".
 
 __sendUSBConfig__ calls the Brother SDK's `printFile` method. The expected input is a string containing raw print commands, which is written to a temporary file in the app cache directory, and is then sent to the `printFile` method and deleted afterwards. You will need a device that supports USB-OTG and a USB-OTG cable. On first run the app will request USB permissions, and it should be saved after that for subsequent prints. As-is, this method is used to send raw commands in PCL (Printer Control Language) to the printer... For example, to configure the network settings of the printer, etc... You will need to reach out to Brother for documentation of the PCL commands. You can probably find them by searching for "[Brother Printer Command Reference](https://duckduckgo.com/?q=Brother+Printer+Command+Reference)" and appending your model number. This method could be extended easily to accept other types of file input, so you could, for example, print JPG images, etc...
