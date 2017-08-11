@@ -47,7 +47,7 @@ PT-E800W, PT-D800W, PT-E850TKW
 PT-P900W, PT-P950NW
 ```
 
-__Tested models:__ `QL-710NW`,`QL-820NWB`
+__Tested models:__ `QL-710W`, `QL-710NW`,`QL-820NWB`
 
 (if you have tried this with other models, please update this list and send a pull request)
 
