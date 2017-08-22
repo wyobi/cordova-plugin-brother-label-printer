@@ -1,6 +1,6 @@
 var BrotherPrinter = function () {}
 BrotherPrinter.prototype = {
-  printLabel: function (data, options, callback) {
+  printLabel: function (data, options, successCallback, errorCallback) {
     if (!data || !data.length) {
       console.log('No data passed in. Expects a bitmap.')
       return;
@@ -11,11 +11,7 @@ BrotherPrinter.prototype = {
       return;
     }
 
-    cordova.exec(callback,
-      function (err) {
-        console.log('error: ' + err)
-      },
-      'BrotherPrinter', 'printLabel', [data, options])
+    cordova.exec(successCallback, errorCallback, 'BrotherPrinter', 'printLabel', [data, options])
   },
 
 }
