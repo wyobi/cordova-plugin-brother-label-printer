@@ -7,7 +7,7 @@ BrotherPrinter.prototype = {
     }
 
     if (!options || !options.numberOfCopies || !options.orientation || !options.labelName || !options.modelName || !options.port) {
-      console.log(`Invalid print options... Options should be for instance in the format: '{"numberOfCopies":1, "orientation":"LANDSCAPE", "labelName":"W62RB", "modelName":"QL-820NBW", "port":"NET"}'.`)
+      console.log('Invalid print options... Options should be for instance in the format: {"numberOfCopies":1, "orientation":"LANDSCAPE", "labelName":"W62RB", "modelName":"QL-820NBW", "port":"NET"}.')
       return;
     }
 
