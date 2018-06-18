@@ -135,6 +135,7 @@ public class BrotherPrinter extends CordovaPlugin {
         public String macAddress;
         public String nodeName;
         public String location;
+        public String paperSize;
 
         public DiscoveredPrinter(BluetoothDevice device) {
             port = PrinterInfo.Port.BLUETOOTH;
@@ -201,6 +202,11 @@ public class BrotherPrinter extends CordovaPlugin {
             if (object.has("location")) {
                 location = object.getString("location");
             }
+
+            if (object.has("paperSize")) {
+                paperSize = object.getString("paperSize");
+            }
+
         }
 
         public JSONObject toJSON() throws JSONException {
@@ -335,7 +341,8 @@ public class BrotherPrinter extends CordovaPlugin {
             editor.putString("port", printer.port.toString());
             editor.putString("address", printer.ipAddress);
             editor.putString("macAddress", printer.macAddress);
-            editor.putString("paperSize", LabelInfo.QL700.W62.toString());
+            editor.putString("paperSize", printer.paperSize != null ? printer.paperSize : LabelInfo.QL700.W62.toString());
+
             editor.commit();
 
             PluginResult result = new PluginResult(PluginResult.Status.OK, args);
