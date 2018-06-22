@@ -57,7 +57,7 @@
  Copyright (c) 2014 Brother.
 
  ***********************************************************************************/
-
+/*
 #import "BRPingOperation.h"
 
 #import "APPingModule.h"
@@ -295,3 +295,4 @@ static NSString * DisplayAddressForAddress(NSData * address) {
 
 
 @end
+*/

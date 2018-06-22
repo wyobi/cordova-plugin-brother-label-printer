@@ -57,7 +57,7 @@
  Copyright (c) 2014 Brother.
 
 ************************************************************************************/
-
+/*
 
 #import <Foundation/Foundation.h>
 
@@ -75,3 +75,4 @@
 -(void)runWithHostName:(NSString *)hostName;
 
 @end
+*/

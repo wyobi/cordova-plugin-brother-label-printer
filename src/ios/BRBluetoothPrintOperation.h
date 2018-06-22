@@ -5,7 +5,7 @@
 //  Created by Kusumoto Naoki on 2015/08/18.
 //  Copyright (c) 2015年 Kusumoto Naoki. All rights reserved.
 //
-
+/*
 #import <Foundation/Foundation.h>
 #import <BRPtouchPrinterKit/BRPtouchPrinterKit.h>
 
@@ -19,4 +19,4 @@
                  imgRef:(CGImageRef)targetImgRef
           numberOfPaper:(int)targetNumberOfPaper
            serialNumber:(NSString *)targetSerialNumber;
-@end
+@en
