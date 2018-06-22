@@ -5,6 +5,7 @@
 #import <BRPtouchPrinterKit/BRPtouchPrinterKit.h>
 #import "BRBluetoothPrintOperation.h"
 #import "BRWLANPrintOperation.h"
+#define kPaperLabelName		@"paperLabelName"
 
 @interface BrotherPrinter : CDVPlugin<BRPtouchNetworkDelegate>
 @property (retain, atomic) NSOperationQueue *operationQueue;

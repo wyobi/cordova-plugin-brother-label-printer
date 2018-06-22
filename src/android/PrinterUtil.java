@@ -75,7 +75,6 @@ public class PrinterUtil {
 
             }
         }
-
     }
 
     @NonNull

@@ -57,7 +57,7 @@
  Copyright (c) 2014 Brother.
 
 ************************************************************************************/
-
+/*
 #import <Foundation/Foundation.h>
 
 #if TARGET_OS_EMBEDDED || TARGET_IPHONE_SIMULATOR
@@ -201,3 +201,4 @@ check_compile_time(offsetof(ICMPHeader, code) == 1);
 check_compile_time(offsetof(ICMPHeader, checksum) == 2);
 check_compile_time(offsetof(ICMPHeader, identifier) == 4);
 check_compile_time(offsetof(ICMPHeader, sequenceNumber) == 6);
+*/
