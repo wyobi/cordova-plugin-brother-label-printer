@@ -9,17 +9,17 @@ BrotherPrinter.prototype = {
     },
 
     findPrinters: function (onSuccess, onError) {
-        if (cordova.platformId == 'ios' && printer['paperLabelName'] && printer['paperLabelName'].startsWith('W')) {
+        cordova.exec(onSuccess, onError, 'BrotherPrinter', 'findPrinters', []);
+    },
+
+    setPrinter: function (printer, onSuccess, onError) {
+         if (cordova.platformId == 'ios' && printer['paperLabelName'] && printer['paperLabelName'].startsWith('W')) {
             var iosLabelName = PAPER_LABEL_MAP[printer['paperLabelName']];
             if (iosLabelName) {
                 //console.log('Converting paperLabelName to ' + iosLabelName + ' for ios ');
                 printer['paperLabelName'] = iosLabelName;
             }
         }
-        cordova.exec(onSuccess, onError, 'BrotherPrinter', 'findPrinters', []);
-    },
-
-    setPrinter: function (printer, onSuccess, onError) {
         cordova.exec(onSuccess, onError, 'BrotherPrinter', 'setPrinter', [printer]);
     },
 
