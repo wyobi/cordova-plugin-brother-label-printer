@@ -14,7 +14,7 @@ BrotherPrinter.prototype = {
 
     setPrinter: function (printer, onSuccess, onError) {
          if (cordova.platformId == 'ios' && printer['paperLabelName'] && printer['paperLabelName'].startsWith('W')) {
-            var iosLabelName = PAPER_LABEL_MAP[printer['paperLabelName']];
+            var iosLabelName = IOS_PAPER_LABEL_MAP[printer['paperLabelName']];
             if (iosLabelName) {
                 //console.log('Converting paperLabelName to ' + iosLabelName + ' for ios ');
                 printer['paperLabelName'] = iosLabelName;
@@ -43,7 +43,7 @@ var plugin = new BrotherPrinter()
 module.exports = plugin
 
 //Note that the key is OK for android while for ios, the value with 'mm' is required
-const PAPER_LABEL_MAP = {
+const IOS_PAPER_LABEL_MAP = {
     W12: '12mm',
     W29: '29mm',
     W38: '38mm',
