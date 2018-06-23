@@ -19,4 +19,5 @@
                  imgRef:(CGImageRef)targetImgRef
           numberOfPaper:(int)targetNumberOfPaper
            serialNumber:(NSString *)targetSerialNumber;
-@en
+@end
+*/
