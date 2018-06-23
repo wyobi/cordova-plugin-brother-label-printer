@@ -637,4 +637,7 @@ static void HostResolveCallback(CFHostRef theHost, CFHostInfoType typeInfo, cons
 
     if (self.hostName != nil) {
         self.hostAddress = NULL;
-    
+    }
+ }
+ @end
+*/ 
