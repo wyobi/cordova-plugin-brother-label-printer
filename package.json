@@ -3,7 +3,7 @@
     "version": "0.0.4-dev",
     "description": "Cordova hooks for Brother Print SDK",
     "cordova": {
-        "id": "cordova-brother-label-printer",
+        "id": "cordova-plugin-brother-label-printer",
         "platforms": [
             "android",
             "ios"
@@ -11,7 +11,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/gordol/cordova-brother-label-printer"
+        "url": "https://github.com/MenelicSoftware/cordova-plugin-brother-label-printer"
     },
     "keywords": [
         "brother",
