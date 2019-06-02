@@ -7,6 +7,11 @@
 #import "BRWLANPrintOperation.h"
 #define kPaperLabelName		@"paperLabelName"
 
+static NSString *const IS_FINISHED_FOR_WLAN = @"isFinishedForWLAN";
+
+static NSString *const COMMUNICATION_RESULT_FOR_WLAN = @"communicationResultForWLAN";
+
+
 @interface BrotherPrinter : CDVPlugin<BRPtouchNetworkDelegate>
 @property (retain, atomic) NSOperationQueue *operationQueue;
 
