@@ -41,7 +41,7 @@
         <source-file src="src/android/ImageBitmapPrint.java" target-dir="src/com/brother/ptouch/sdk/printdemo/printprocess" />
         <source-file src="src/android/ImageFilePrint.java" target-dir="src/com/brother/ptouch/sdk/printdemo/printprocess" />
 
-        <source-file src="src/android/libs/BrotherPrintLibrary.jar" target-dir="libs" />
+        <source-file src="src/android/libs/BrotherPrintLibrary.jar" target-dir="lib" />
 
         <source-file src="src/android/libs/arm64-v8a" target-dir="lib" />
         <source-file src="src/android/libs/armeabi" target-dir="lib" />
