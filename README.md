@@ -1,6 +1,6 @@
 # Cordova plugin for Brother Label Printer
 
-## Supported platforms arer Android and iOS
+## Supports Android and iOS
 
 Uses the Brother Print SDK for Android and iOS ...
 
