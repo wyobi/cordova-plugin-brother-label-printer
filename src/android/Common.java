@@ -61,6 +61,8 @@ public class Common {
     public static final int MSG_DATA_SEND_END = 10031;
     public static final int MSG_GET_FIRM = 10099;
 
+    public static final int MSG_INTERNAL_SYSTEM_ERROR = 900001;
+
     // Activity_NetPrinterList
     public static final int SEARCH_TIMES = 10;
     public static final int ACTION_WIFI_SETTINGS = 10007;

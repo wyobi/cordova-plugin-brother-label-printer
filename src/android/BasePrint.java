@@ -15,6 +15,7 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.brother.ptouch.sdk.LabelInfo;
 import com.brother.ptouch.sdk.Printer;
@@ -25,6 +26,8 @@ import com.brother.ptouch.sdk.PrinterStatus;
 import com.brother.ptouch.sdk.TimeoutSetting;
 import com.brother.ptouch.sdk.printdemo.common.Common;
 import com.brother.ptouch.sdk.printdemo.common.MsgHandle;
+
+import static com.threescreens.cordova.plugin.brotherPrinter.BrotherPrinter.TAG;
 
 public abstract class BasePrint {
 
@@ -162,7 +165,7 @@ public abstract class BasePrint {
                             .parseBoolean(sharedPreferences.getString(
                                     "specialType", ""));
                     break;
-                 default:
+                default:
                     break;
             }
         } else {
@@ -477,29 +480,33 @@ public abstract class BasePrint {
     private class PrinterThread extends Thread {
         @Override
         public void run() {
+            try {
+                // set info. for printing
+                setPrinterInfo();
 
-            // set info. for printing
-            setPrinterInfo();
+                // start message
+                Message msg = mHandle.obtainMessage(Common.MSG_PRINT_START);
+                mHandle.sendMessage(msg);
 
-            // start message
-            Message msg = mHandle.obtainMessage(Common.MSG_PRINT_START);
-            mHandle.sendMessage(msg);
+                mPrintResult = new PrinterStatus();
 
-            mPrintResult = new PrinterStatus();
+                mPrinter.startCommunication();
+                if (!mCancel) {
+                    doPrint();
+                } else {
+                    mPrintResult.errorCode = ErrorCode.ERROR_CANCEL;
+                }
+                mPrinter.endCommunication();
 
-            mPrinter.startCommunication();
-            if (!mCancel) {
-                doPrint();
-            } else {
-                mPrintResult.errorCode = ErrorCode.ERROR_CANCEL;
+                // end message
+                mHandle.setResult(showResult());
+                mHandle.setBattery(getBattery());
+                msg = mHandle.obtainMessage(Common.MSG_PRINT_END);
+                mHandle.sendMessage(msg);
+
+            } catch (Throwable throwable) {
+                handleUnexpectedError("Failed to print:", throwable);
             }
-            mPrinter.endCommunication();
-
-            // end message
-            mHandle.setResult(showResult());
-            mHandle.setBattery(getBattery());
-            msg = mHandle.obtainMessage(Common.MSG_PRINT_END);
-            mHandle.sendMessage(msg);
         }
     }
 
@@ -509,27 +516,36 @@ public abstract class BasePrint {
     private class getStatusThread extends Thread {
         @Override
         public void run() {
+            try {
+                // set info. for printing
+                setPrinterInfo();
 
-            // set info. for printing
-            setPrinterInfo();
+                // start message
+                Message msg = mHandle.obtainMessage(Common.MSG_PRINT_START);
+                mHandle.sendMessage(msg);
 
-            // start message
-            Message msg = mHandle.obtainMessage(Common.MSG_PRINT_START);
-            mHandle.sendMessage(msg);
-
-            mPrintResult = new PrinterStatus();
-            if (!mCancel) {
-                mPrintResult = mPrinter.getPrinterStatus();
-            } else {
-                mPrintResult.errorCode = ErrorCode.ERROR_CANCEL;
+                mPrintResult = new PrinterStatus();
+                if (!mCancel) {
+                    mPrintResult = mPrinter.getPrinterStatus();
+                } else {
+                    mPrintResult.errorCode = ErrorCode.ERROR_CANCEL;
+                }
+                // end message
+                mHandle.setResult(showResult());
+                mHandle.setBattery(getBattery());
+                msg = mHandle.obtainMessage(Common.MSG_PRINT_END);
+                mHandle.sendMessage(msg);
+            } catch (Throwable throwable) {
+                handleUnexpectedError("Failed to get printer status: ", throwable);
             }
-            // end message
-            mHandle.setResult(showResult());
-            mHandle.setBattery(getBattery());
-            msg = mHandle.obtainMessage(Common.MSG_PRINT_END);
-            mHandle.sendMessage(msg);
-
         }
     }
 
+    private void handleUnexpectedError(final String message, Throwable throwable) {
+
+        Log.e(TAG, message, throwable);
+        Message msg = mHandle.obtainMessage(Common.MSG_UNEXPECTED_INTERNAL_SYSTEM_ERROR);
+        mHandle.setResult(throwable.getClass().getSimpleName());
+        mHandle.sendMessage(msg);
+    }
 }

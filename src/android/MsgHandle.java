@@ -7,12 +7,10 @@
 
 package com.brother.ptouch.sdk.printdemo.common;
 
-import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -20,8 +18,9 @@ import com.brother.ptouch.sdk.PrinterInfo;
 //import com.brother.ptouch.sdk.printdemo.R;
 //
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
+
+import static java.lang.String.format;
 
 public class MsgHandle extends Handler {
     private CallbackContext mCallback;
@@ -233,6 +232,16 @@ public class MsgHandle extends Handler {
 
                 final PluginResult noUSBResult = new PluginResult(PluginResult.Status.ERROR, "USB device is not found");
                 mCallback.sendPluginResult(noUSBResult);
+                mCallback = null;
+                break;
+
+            case Common.MSG_UNEXPECTED_INTERNAL_SYSTEM_ERROR:
+                if (mCallback == null) {
+                    break;
+                }
+
+                final PluginResult unexpectedSysErrResult = new PluginResult(PluginResult.Status.ERROR, format("Unexpected Internal System Error: %s", this.mResult));
+                mCallback.sendPluginResult(unexpectedSysErrResult);
                 mCallback = null;
                 break;
             default:

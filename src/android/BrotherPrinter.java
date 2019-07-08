@@ -55,8 +55,8 @@ import com.brother.ptouch.sdk.printdemo.printprocess.ImageFilePrint;
 
 public class BrotherPrinter extends CordovaPlugin {
     private static PrinterInfo.Model[] supportedModels = {
-        PrinterInfo.Model.QL_720NW,
-        PrinterInfo.Model.QL_820NWB,
+            PrinterInfo.Model.QL_720NW,
+            PrinterInfo.Model.QL_820NWB,
     };
 
     private MsgHandle mHandle;
@@ -88,7 +88,7 @@ public class BrotherPrinter extends CordovaPlugin {
     }
 
     //token to make it easy to grep logcat
-    private static final String TAG = "BrotherPrinter";
+    public static final String TAG = "BrotherPrinter";
 
     @Override
     public boolean execute (String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
