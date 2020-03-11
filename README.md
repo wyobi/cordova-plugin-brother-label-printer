@@ -144,3 +144,60 @@ interface Printer {
     paperLabelName?: string // 'W17H54'|'W17H87'|'W23H23'|'W29H42'|'W29H90'|'W38H90'|'W39H48'|'W52H29'|'W62H29'|'W62H100'|'W12'|'W29'|'W38'|'W50'|'W54'|'W62'|'W60H86'|'W54H29'|'W62RB' 
 }
 ```
+
+### Sample Code
+```
+    private setAndPrint(thePrinter: Printer, dataUrl: string) {
+
+        console.debug(`===== in setAndPrint===`)
+
+        thePrinter.orientation = 'LANDSCAPE'
+        thePrinter.paperLabelName = 'W62'
+        thePrinter.ipAddress = 'YOUR_IP_ADDRESS'
+
+        cordova.plugins.brotherPrinter.setPrinter(thePrinter, (success) => {
+            console.debug(`===== set printer ok`)
+
+            let separatorIdx: number = dataUrl.indexOf(',');
+
+            if (separatorIdx != -1) {
+                dataUrl = dataUrl.substring(separatorIdx + 1);
+            }
+
+            cordova.plugins.brotherPrinter.printViaSDK(dataUrl, (success) => {
+                console.debug(`===== in printViaSDK ok`)
+
+                if (success && success['result'] && success['result'] != "ERROR_NONE" && success['result'].indexOf('ERROR') != -1) {
+                    console.error(`Printing on ${this.toString(thePrinter)} returned message : ${JSON.stringify(success)}`)
+                } else {
+                    console.debug(`=====print via sdk ok!!!`)
+                    //this.toastService.showInfo(`Badge printed successfully`)
+                }
+
+
+            }, (err) => {
+                console.error(`Failed to print via sdk`)
+                console.error(`Printing failed on ${this.toString(thePrinter)} with message : ${JSON.stringify(err)}`)
+
+            })
+        }, (err) => {
+            console.error(`====error failed to set printer: "${JSON.stringify(err)}"`)
+            console.error(`Failed to set printer to ${this.toString(thePrinter)} with message : ${JSON.stringify(err)}`)
+
+        })
+
+
+        console.debug(`===== in setAndPrint END ===`)
+
+    }
+
+    private toString(thePrinter: Printer): string {
+        if (!thePrinter) {
+            return ''
+        }
+
+        return `ip:${thePrinter.ipAddress}, model:${thePrinter.model}, port: ${thePrinter.port}`
+    }
+  
+}
+```
