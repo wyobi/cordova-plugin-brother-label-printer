@@ -145,6 +145,15 @@ public abstract class BasePrint {
                             .parseBoolean(sharedPreferences.getString("endCut", new Boolean(true).toString()));
                     break;
 
+                case QL_820NWB:
+                mPrinterInfo.labelNameIndex = LabelInfo.QL1100.valueOf(
+                        sharedPreferences.getString("paperSize", LabelInfo.QL1100.W103H164.toString())).ordinal();
+                mPrinterInfo.isAutoCut = Boolean.parseBoolean(sharedPreferences
+                        .getString("autoCut", new Boolean(true).toString()));
+                mPrinterInfo.isCutAtEnd = Boolean
+                        .parseBoolean(sharedPreferences.getString("endCut", new Boolean(true).toString()));
+                break;
+
                 case PT_E550W:
                 case PT_P750W:
                 case PT_D800W:
@@ -406,6 +415,7 @@ public abstract class BasePrint {
                 || mPrinterInfo.printerModel == Model.QL_800
                 || mPrinterInfo.printerModel == Model.QL_810W
                 || mPrinterInfo.printerModel == Model.QL_820NWB
+                || mPrinterInfo.printerModel == Model.QL_1110NWB
                 || mPrinterInfo.printerModel == Model.RJ_2030
                 || mPrinterInfo.printerModel == Model.RJ_2050
                 || mPrinterInfo.printerModel == Model.RJ_2140
@@ -468,6 +478,7 @@ public abstract class BasePrint {
             case QL_810W:
             case QL_800:
             case QL_820NWB:
+            case QL_1110NWB:
                 return true;
             default:
                 return false;
