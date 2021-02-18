@@ -343,6 +343,7 @@ public class BrotherPrinter extends CordovaPlugin {
             editor.putString("address", printer.ipAddress);
             editor.putString("macAddress", printer.macAddress);
             editor.putString("paperSize", printer.paperLabelName != null ? printer.paperLabelName : LabelInfo.QL700.W62.toString());
+            editor.putString("orientation", printer.orientation != null ? printer.orientation : PrinterInfo.Orientation.LANDSCAPE.toString());
 
             editor.commit();
 
