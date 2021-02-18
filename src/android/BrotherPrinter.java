@@ -137,6 +137,7 @@ public class BrotherPrinter extends CordovaPlugin {
         public String nodeName;
         public String location;
         public String paperLabelName;
+        public String orientation;
 
         public DiscoveredPrinter(BluetoothDevice device) {
             port = PrinterInfo.Port.BLUETOOTH;
@@ -206,6 +207,10 @@ public class BrotherPrinter extends CordovaPlugin {
 
             if (object.has("paperLabelName")) {
                 paperLabelName = object.getString("paperLabelName");
+            }
+
+            if (object.has("orientation")) {
+                orientation = object.getString("orientation");
             }
 
         }
