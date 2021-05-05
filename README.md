@@ -5,7 +5,7 @@
 Uses the Brother Print SDK for Android and iOS ...
 
 More info can be found here, including a list of compatible printers: 
-https://www.brother.co.jp/eng/dev/mobilesdk
+https://support.brother.com/g/s/es/dev/en/mobilesdk/download/index.html?c=us_ot&lang=en&comple=on&redirect=on
 
 Already bundled is the following version:
  - Brother Print SDK for Android™ v3.5.1 (2020-07-16) which is in the `src/android/libs` dir.
