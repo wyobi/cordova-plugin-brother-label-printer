@@ -1,4 +1,4 @@
-package com.threescreens.cordova.plugin.brotherPrinter;
+package com.threescreens.cordova.plugin.brotherprinter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,6 +54,7 @@ import com.brother.ptouch.sdk.PrinterStatus;
 import com.brother.ptouch.sdk.printdemo.common.MsgHandle;
 import com.brother.ptouch.sdk.printdemo.printprocess.ImageBitmapPrint;
 import com.brother.ptouch.sdk.printdemo.printprocess.ImageFilePrint;
+import static com.threescreens.cordova.plugin.brotherprinter.PrinterInputParameterConstant.INCLUDE_BATTERY_STATUS;
 
 public class BrotherPrinter extends CordovaPlugin {
     //token to make it easy to grep logcat
@@ -149,6 +150,7 @@ public class BrotherPrinter extends CordovaPlugin {
         public String location;
         public String paperLabelName;
         public String orientation;
+        public String includeBatteryStatus;
 
         public DiscoveredPrinter(BluetoothDevice device) {
             port = PrinterInfo.Port.BLUETOOTH;
@@ -222,6 +224,12 @@ public class BrotherPrinter extends CordovaPlugin {
 
             if (object.has("orientation")) {
                 orientation = object.getString("orientation");
+            }
+
+            if (object.has(INCLUDE_BATTERY_STATUS)) {
+                includeBatteryStatus = object.getString(INCLUDE_BATTERY_STATUS);
+            } else {
+                includeBatteryStatus = Boolean.FALSE.toString();
             }
 
         }
@@ -372,6 +380,7 @@ public class BrotherPrinter extends CordovaPlugin {
             editor.putString("macAddress", printer.macAddress);
             editor.putString("paperSize", printer.paperLabelName != null ? printer.paperLabelName : LabelInfo.QL700.W62.toString());
             editor.putString("orientation", printer.orientation != null ? printer.orientation : PrinterInfo.Orientation.LANDSCAPE.toString());
+            editor.putString(INCLUDE_BATTERY_STATUS, printer.includeBatteryStatus);
 
             editor.commit();
 
@@ -481,7 +490,7 @@ public class BrotherPrinter extends CordovaPlugin {
                     return;
                 }
 
-                final String ACTION_USB_PERMISSION = "com.threescreens.cordova.plugin.brotherPrinter.USB_PERMISSION";
+                final String ACTION_USB_PERMISSION = "com.threescreens.cordova.plugin.brotherprinter.USB_PERMISSION";
 
                 PendingIntent permissionIntent = PendingIntent.getBroadcast(context, 0, new Intent(ACTION_USB_PERMISSION), 0);
                 usbManager.requestPermission(usbDevice, permissionIntent);

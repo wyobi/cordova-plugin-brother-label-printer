@@ -33,7 +33,8 @@ import com.brother.ptouch.sdk.printdemo.common.MsgHandle;
 import java.util.List;
 import java.util.Map;
 
-import static com.threescreens.cordova.plugin.brotherPrinter.BrotherPrinter.TAG;
+import static com.threescreens.cordova.plugin.brotherprinter.BrotherPrinter.TAG;
+import static com.threescreens.cordova.plugin.brotherprinter.PrinterInputParameterConstant.INCLUDE_BATTERY_STATUS;
 
 @SuppressWarnings("ALL")
 public abstract class BasePrint {
@@ -284,13 +285,13 @@ public abstract class BasePrint {
         mPrinterInfo.pjFeedMode = PrinterInfo.PjFeedMode
                 .valueOf(sharedPreferences.getString("pjFeedMode", PrinterInfo.PjFeedMode.PJ_FEED_MODE_FIXEDPAGE.toString()));
         mPrinterInfo.align = PrinterInfo.Align.valueOf(sharedPreferences
-                .getString("align", PrinterInfo.Align.CENTER.toString()));
+                .getString("align", PrinterInfo.Align.LEFT.toString()));
         input = sharedPreferences.getString("leftMargin", "");
         if (input.equals(""))
             input = "0";
         mPrinterInfo.margin.left = Integer.parseInt(input);
         mPrinterInfo.valign = PrinterInfo.VAlign.valueOf(sharedPreferences
-                .getString("valign", PrinterInfo.VAlign.MIDDLE.name()));
+                .getString("valign", PrinterInfo.VAlign.TOP.name()));
         input = sharedPreferences.getString("topMargin", "");
         if (input.equals(""))
             input = "0";
@@ -566,6 +567,13 @@ public abstract class BasePrint {
      */
     public String getBattery() {
 
+        boolean includeBatteryStatus = Boolean.parseBoolean(sharedPreferences
+                .getString(INCLUDE_BATTERY_STATUS, ""));
+
+        if(!includeBatteryStatus){
+            return "";
+        }
+
         if (mPrintResult.isACConnected == BatteryTernary.Yes) {
             return Common.BatteryStatus.ACADAPTER.toString();
         }
@@ -638,6 +646,14 @@ public abstract class BasePrint {
         if (mPrintResult == null) {
             return "";
         }
+
+        boolean includeBatteryStatus = Boolean.parseBoolean(sharedPreferences
+                .getString(INCLUDE_BATTERY_STATUS, ""));
+
+        if(!includeBatteryStatus){
+            return "";
+        }
+
         return String.format("%d/%d(AC=%s,BM=%s)",
                 mPrintResult.batteryResidualQuantityLevel,
                 mPrintResult.maxOfBatteryResidualQuantityLevel,
