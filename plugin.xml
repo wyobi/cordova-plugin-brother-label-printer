@@ -3,7 +3,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
         id="cordova-plugin-brother-label-printer"
-        version="1.5.4">
+        version="1.5.5">
 
     <name>BrotherPrinter</name>
 
@@ -89,7 +89,7 @@
                 </config-file>
                 <framework src="ExternalAccessory.framework" />
         -->
-        <framework src="src/ios/libs/BRPtouchPrinterKit.framework" custom="true" />
+        <framework src="src/ios/libs/BRLMPrinterKit.framework" custom="true" />
         <header-file src="src/ios/BRBluetoothPrintOperation.h" />
         <source-file src="src/ios/BRBluetoothPrintOperation.m" />
 
