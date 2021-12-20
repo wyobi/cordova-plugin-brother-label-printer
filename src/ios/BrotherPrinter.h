@@ -7,6 +7,7 @@
 #import "BRWLANPrintOperation.h"
 #define kPaperLabelName		@"paperLabelName"
 #define kPrintNumberOfPaperKey		@"numberOfCopies"
+#define kPrintOrientationKey		@"orientation"
 
 static NSString *const IS_FINISHED_FOR_WLAN = @"isFinishedForWLAN";
 
