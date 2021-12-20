@@ -6,6 +6,7 @@
 #import "BRBluetoothPrintOperation.h"
 #import "BRWLANPrintOperation.h"
 #define kPaperLabelName		@"paperLabelName"
+#define kPrintNumberOfPaperKey		@"numberOfCopies"
 
 static NSString *const IS_FINISHED_FOR_WLAN = @"isFinishedForWLAN";
 

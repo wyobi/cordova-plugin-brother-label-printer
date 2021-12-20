@@ -265,6 +265,7 @@
     NSString *ipAddress = obj[@"ipAddress"];
     NSString *modelName = obj[@"modelName"];
     NSString *paperLabelName = obj[@"paperLabelName"];
+    NSString *numberOfCopies = obj[@"numberOfCopies"];
 
     if (!modelName) {
         [self.commandDelegate
@@ -314,6 +315,12 @@
         [userDefaults
                 setObject:paperLabelName
                    forKey:kPaperLabelName];
+    }
+
+    if(numberOfCopies) {
+        [userDefaults
+                    setObject:numberOfCopies
+                       forKey:kPrintNumberOfPaperKey];
     }
 
     [userDefaults synchronize];
