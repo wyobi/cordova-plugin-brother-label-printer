@@ -90,7 +90,14 @@
                 <framework src="ExternalAccessory.framework" />
         -->
         <framework src="src/ios/libs/BRLMPrinterKit.framework" custom="true"/>
-        <framework src="BRLMPrinterKit" type="podspec" />
+        <podspec>
+            <config>
+                <source url="https://github.com/CocoaPods/Specs.git"/>
+            </config>
+            <pods use-frameworks="true">
+                <pod name="BRLMPrinterKit" />
+            </pods>
+        </podspec>
         <header-file src="src/ios/BRBluetoothPrintOperation.h" />
         <source-file src="src/ios/BRBluetoothPrintOperation.m" />
 
