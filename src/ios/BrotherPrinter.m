@@ -265,6 +265,8 @@
     NSString *ipAddress = obj[@"ipAddress"];
     NSString *modelName = obj[@"modelName"];
     NSString *paperLabelName = obj[@"paperLabelName"];
+    NSString *numberOfCopies = obj[@"numberOfCopies"];
+    NSString *orientation = obj[@"orientation"];
 
     if (!modelName) {
         [self.commandDelegate
@@ -314,6 +316,24 @@
         [userDefaults
                 setObject:paperLabelName
                    forKey:kPaperLabelName];
+    }
+
+    if(numberOfCopies) {
+        [userDefaults
+                    setObject:numberOfCopies
+                       forKey:kPrintNumberOfPaperKey];
+    }
+
+    if (orientation) {
+        if ([[orientation uppercaseString] isEqual:@"PORTRAIT"]) {
+            [userDefaults
+                    setObject:@0x01
+                       forKey:kPrintOrientationKey];
+        } else {
+            [userDefaults
+                    setObject:@0x00
+                       forKey:kPrintOrientationKey];
+        }
     }
 
     [userDefaults synchronize];
@@ -382,7 +402,7 @@
     NSString *numPaper = [self stringValueFromDefaults:userDefaults forKey:kPrintNumberOfPaperKey withFallback:@"1"]; // Item 1
 
     printInfo.strPaperName = [self stringValueFromDefaults:userDefaults forKey:kPaperLabelName withFallback:@"62mm"]; // Item 2
-    printInfo.nOrientation = (int) [self integerValueFromDefaults:userDefaults forKey:kPrintOrientationKey withFallback:Landscape]; // Item 3
+    printInfo.nOrientation = (int) [self integerValueFromDefaults:userDefaults forKey:kPrintOrientationKey withFallback:0x00]; // Item 3
     printInfo.nPrintMode = (int) [self integerValueFromDefaults:userDefaults forKey:kScalingModeKey withFallback:Fit]; // Item 4
     printInfo.scaleValue = [self doubleValueFromDefaults:userDefaults forKey:kScalingFactorKey withFallback:1.0]; // Item 5
 ///////////

@@ -49,14 +49,6 @@ enum PrintPaperSize
     Legal
 };
 
-// Item 3
-#define kPrintOrientationKey		@"PrintOrientationKey"
-enum PrintOrientationKey
-{
-    Landscape   = 0x00,
-    Portrate    = 0x01
-};
-
 // Item 4
 #define kScalingModeKey		@"ScalingModeKey"
 enum PrintFitKey

@@ -150,6 +150,7 @@ public class BrotherPrinter extends CordovaPlugin {
         public String location;
         public String paperLabelName;
         public String orientation;
+        public String numberOfCopies;
         public String includeBatteryStatus;
 
         public DiscoveredPrinter(BluetoothDevice device) {
@@ -224,6 +225,10 @@ public class BrotherPrinter extends CordovaPlugin {
 
             if (object.has("orientation")) {
                 orientation = object.getString("orientation");
+            }
+
+            if (object.has("numberOfCopies")) {
+                numberOfCopies = object.getString("numberOfCopies");
             }
 
             if (object.has(INCLUDE_BATTERY_STATUS)) {
@@ -380,6 +385,8 @@ public class BrotherPrinter extends CordovaPlugin {
             editor.putString("macAddress", printer.macAddress);
             editor.putString("paperSize", printer.paperLabelName != null ? printer.paperLabelName : LabelInfo.QL700.W62.toString());
             editor.putString("orientation", printer.orientation != null ? printer.orientation : PrinterInfo.Orientation.LANDSCAPE.toString());
+            editor.putString("numberOfCopies", printer.numberOfCopies);
+
             editor.putString(INCLUDE_BATTERY_STATUS, printer.includeBatteryStatus);
 
             editor.commit();
