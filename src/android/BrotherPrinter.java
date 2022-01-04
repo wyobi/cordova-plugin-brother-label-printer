@@ -617,7 +617,7 @@ public class BrotherPrinter extends CordovaPlugin {
             out.close();
             out = null;
         } catch (Exception e) {
-            Log.e("Brother/SDKEvent", "Exception in copyFile() " + e.toString());
+            Log.e("Brother/SDKEvent", "Exception in copyBinFile() " + e.toString());
         }
 
     }
