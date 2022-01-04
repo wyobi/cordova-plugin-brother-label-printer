@@ -483,7 +483,7 @@ public abstract class BasePrint {
                 if (manualCustomPaperSettingsEnabled) {
                     result = setManualCustomPaper(mPrinterInfo.printerModel);
                 } else {
-                    mPrinterInfo.customPaper = Common.CUSTOM_PAPER_FOLDER + customSetting;
+                    mPrinterInfo.customPaper = customSetting;
                     result = setManualCustomPaper(null);
                 }
                 break;

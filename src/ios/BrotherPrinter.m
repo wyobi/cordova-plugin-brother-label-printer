@@ -4,6 +4,7 @@
     NSMutableArray *_brotherDeviceList;
     BRPtouchNetworkManager *_networkManager;
     BRPtouchPrinter *_ptp;
+    NSString *_customPaperFilePath;
     UIImage *_image;
     NSString *_printCallbackId;
 
@@ -50,7 +51,8 @@
             @"Brother QL-710W",
             @"Brother QL-720NW",
             @"Brother QL-810W",
-            @"Brother QL-820NWB"];
+            @"Brother QL-820NWB",
+            @"Brother TD-2120N"];
 
 
 }
@@ -267,6 +269,7 @@
     NSString *paperLabelName = obj[@"paperLabelName"];
     NSString *numberOfCopies = obj[@"numberOfCopies"];
     NSString *orientation = obj[@"orientation"];
+    NSString *customPaperFilePath = obj[@"customPaperFilePath"];
 
     if (!modelName) {
         [self.commandDelegate
@@ -334,6 +337,11 @@
                     setObject:@0x00
                        forKey:kPrintOrientationKey];
         }
+    }
+    
+    if(customPaperFilePath) {
+        NSString *absoluteCustomPaperFilePath = [NSString stringWithFormat:@"%@/%@", @"www", [customPaperFilePath stringByDeletingPathExtension]];
+        _customPaperFilePath = [[NSBundle mainBundle] pathForResource:absoluteCustomPaperFilePath ofType:@"bin"];
     }
 
     [userDefaults synchronize];
@@ -430,10 +438,6 @@
     printInfo.bSpecialTape = (int) [self integerValueFromDefaults:userDefaults forKey:kPrintSpecialTapeKey withFallback:SpecialTapeOff]; // Item 23
     printInfo.bRotate180 = (int) [self integerValueFromDefaults:userDefaults forKey:kRotateKey withFallback:RotateOff]; // Item 24
     printInfo.bPeel = (int) [self integerValueFromDefaults:userDefaults forKey:kPeelKey withFallback:PeelOff]; // Item 25
-
-    NSString *customPaper = [self stringValueFromDefaults:userDefaults forKey:kPrintCustomPaperKey withFallback:@""]; // Item 26
-    NSString *customPaperFilePath = nil;
-
     printInfo.bCutMark = (int) [self integerValueFromDefaults:userDefaults forKey:kPrintCutMarkKey withFallback:CutMarkOff]; // Item 27
     printInfo.nLabelMargine = (int) [self integerValueFromDefaults:userDefaults forKey:kPrintLabelMargineKey withFallback:0]; // Item 28
 
@@ -497,14 +501,23 @@
             finalDeviceName = [NSString stringWithFormat:@"Brother %@", printerName];
         }
     }];
+    
+    NSFileManager *fileManager = [NSFileManager defaultManager];
 
     if (isBluetooth == 1) {
 
         _ptp = [[BRPtouchPrinter alloc] initWithPrinterName:finalDeviceName interface:CONNECTION_TYPE_BLUETOOTH];
+        if ([fileManager fileExistsAtPath:_customPaperFilePath]){
+            [_ptp setCustomPaperFile:_customPaperFilePath];
+        }
 //        [_ptp setupForBluetoothDeviceWithSerialNumber:serialNumber];
 
     } else if (isWifi == 1) {
         _ptp = [[BRPtouchPrinter alloc] initWithPrinterName:finalDeviceName interface:CONNECTION_TYPE_WLAN];
+        
+        if ([fileManager fileExistsAtPath:_customPaperFilePath]){
+            [_ptp setCustomPaperFile:_customPaperFilePath];
+        }
         //    [_ptp setIPAddress:ipAddress];
     } else {
         _ptp = nil;

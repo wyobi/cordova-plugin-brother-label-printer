@@ -86,9 +86,6 @@ public class Common {
     // Activity_Settings
     public static final int FOLDER_SELECT = 10016;
 
-    public static final String CUSTOM_PAPER_FOLDER = Environment
-            .getExternalStorageDirectory().toString() + "/customPaperFileSet/";
-
     public static int mUsbRequest;
 
     public enum BatteryStatus {
