@@ -5,9 +5,10 @@
 #import <BRLMPrinterKit/BRPtouchPrinterKit.h>
 #import "BRBluetoothPrintOperation.h"
 #import "BRWLANPrintOperation.h"
-#define kPaperLabelName		@"paperLabelName"
+#define kPaperLabelName        @"paperLabelName"
 #define kPrintNumberOfPaperKey		@"numberOfCopies"
 #define kPrintOrientationKey		@"orientation"
+#define kCustomPaperFilePath        @"customPaperFilePath"
 
 static NSString *const IS_FINISHED_FOR_WLAN = @"isFinishedForWLAN";
 

@@ -1,10 +1,9 @@
 package com.threescreens.cordova.plugin.brotherprinter;
 
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -33,12 +32,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ActivityCompat;
-import android.telecom.Call;
 import android.util.Base64;
 import android.util.Log;
 
@@ -64,6 +62,7 @@ public class BrotherPrinter extends CordovaPlugin {
             PrinterInfo.Model.QL_720NW,
             PrinterInfo.Model.QL_820NWB,
             PrinterInfo.Model.QL_1110NWB,
+            PrinterInfo.Model.TD_2120N
     };
 
     private MsgHandle mHandle;
@@ -152,6 +151,7 @@ public class BrotherPrinter extends CordovaPlugin {
         public String orientation;
         public String numberOfCopies;
         public String includeBatteryStatus;
+        public String customPaperFilePath;
 
         public DiscoveredPrinter(BluetoothDevice device) {
             port = PrinterInfo.Port.BLUETOOTH;
@@ -231,6 +231,10 @@ public class BrotherPrinter extends CordovaPlugin {
                 numberOfCopies = object.getString("numberOfCopies");
             }
 
+            if(object.has("customPaperFilePath")) {
+                customPaperFilePath = object.getString("customPaperFilePath");
+            }
+
             if (object.has(INCLUDE_BATTERY_STATUS)) {
                 includeBatteryStatus = object.getString(INCLUDE_BATTERY_STATUS);
             } else {
@@ -250,6 +254,9 @@ public class BrotherPrinter extends CordovaPlugin {
             result.put("nodeName", nodeName);
             result.put("location", location);
             result.put("paperLabelName", paperLabelName);
+            result.put("orientation", orientation);
+            result.put("numberOfCopies", numberOfCopies);
+            result.put("customPaperFilePath", customPaperFilePath);
             return result;
         }
     }
@@ -386,6 +393,13 @@ public class BrotherPrinter extends CordovaPlugin {
             editor.putString("paperSize", printer.paperLabelName != null ? printer.paperLabelName : LabelInfo.QL700.W62.toString());
             editor.putString("orientation", printer.orientation != null ? printer.orientation : PrinterInfo.Orientation.LANDSCAPE.toString());
             editor.putString("numberOfCopies", printer.numberOfCopies);
+
+            if(!printer.customPaperFilePath.isEmpty()) {
+                String targetBinFolder = cordova.getActivity()
+                        .getExternalFilesDir("customPaperFileSet/").toString();
+                copyBinFile("www/" + printer.customPaperFilePath, targetBinFolder);
+                editor.putString("customSetting", targetBinFolder + new File(printer.customPaperFilePath).getName());
+            }
 
             editor.putString(INCLUDE_BATTERY_STATUS, printer.includeBatteryStatus);
 
@@ -554,7 +568,6 @@ public class BrotherPrinter extends CordovaPlugin {
                 //label info must be set after setPrinterInfo, it's not in the docs
                 myPrinter.setLabelInfo(myLabelInfo);
 
-
                 try {
                     File outputDir = context.getCacheDir();
                     File outputFile = new File(outputDir.getPath() + "configure.prn");
@@ -579,6 +592,34 @@ public class BrotherPrinter extends CordovaPlugin {
                 }
             }
         });
+    }
+
+    private void copyBinFile(String filename, String targetPath) {
+        AssetManager assetManager = cordova.getActivity().getAssets();
+        InputStream in = null;
+        OutputStream out = null;
+        String newFileName = null;
+        try {
+            in = assetManager.open(filename);
+
+            newFileName = targetPath + filename.substring(filename.lastIndexOf("/")+1);
+
+            out = new FileOutputStream(newFileName);
+
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                out.write(buffer, 0, read);
+            }
+            in.close();
+            in = null;
+            out.flush();
+            out.close();
+            out = null;
+        } catch (Exception e) {
+            Log.e("Brother/SDKEvent", "Exception in copyBinFile() " + e.toString());
+        }
+
     }
 
 }
