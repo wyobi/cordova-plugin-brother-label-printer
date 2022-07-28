@@ -394,7 +394,7 @@ public class BrotherPrinter extends CordovaPlugin {
             editor.putString("orientation", printer.orientation != null ? printer.orientation : PrinterInfo.Orientation.LANDSCAPE.toString());
             editor.putString("numberOfCopies", printer.numberOfCopies);
 
-            if(!printer.customPaperFilePath.isEmpty()) {
+            if(printer.customPaperFilePath != null && !printer.customPaperFilePath.isEmpty()) {
                 String targetBinFolder = cordova.getActivity()
                         .getExternalFilesDir("customPaperFileSet/").toString();
                 copyBinFile("www/" + printer.customPaperFilePath, targetBinFolder);
