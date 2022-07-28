@@ -267,7 +267,7 @@
     NSString *ipAddress = obj[@"ipAddress"];
     NSString *modelName = obj[@"modelName"];
     NSString *paperLabelName = obj[@"paperLabelName"];
-        NSString *numberOfCopies = obj[@"numberOfCopies"];
+    NSString *numberOfCopies = obj[@"numberOfCopies"];
     NSString *orientation = obj[@"orientation"];
     NSString *customPaperFilePath = obj[@"customPaperFilePath"];
     NSString *serialNumber = obj[@"serialNumber"];
@@ -522,7 +522,7 @@
         if ([fileManager fileExistsAtPath:_customPaperFilePath]){
             [_ptp setCustomPaperFile:_customPaperFilePath];
         }
-        
+
         [_ptp setupForBluetoothDeviceWithSerialNumber:serialNumber];
 
     } else if (isWifi == 1) {
@@ -549,24 +549,24 @@
 
     NSOperation *operation = nil;
     if (isBluetooth == 1) {
-               BRBluetoothPrintOperation *bluetoothPrintOperation = [[BRBluetoothPrintOperation alloc]
-                                  initWithOperation:_ptp
-                                          printInfo:printInfo
-                                             imgRef:[_image CGImage]
-                                      numberOfPaper:[numPaper intValue]
-                                       serialNumber:serialNumber];
-       
-               [bluetoothPrintOperation addObserver:self
-                            forKeyPath:@"isFinishedForBT"
-                               options:NSKeyValueObservingOptionNew
-                               context:nil];
-       
-               [bluetoothPrintOperation addObserver:self
-                           forKeyPath:@"communicationResultForBT"
-                              options:NSKeyValueObservingOptionNew
-                              context:nil];
-       
-               operation = bluetoothPrintOperation;
+        BRBluetoothPrintOperation *bluetoothPrintOperation = [[BRBluetoothPrintOperation alloc]
+                            initWithOperation:_ptp
+                                    printInfo:printInfo
+                                        imgRef:[_image CGImage]
+                                numberOfPaper:[numPaper intValue]
+                                serialNumber:serialNumber];
+
+        [bluetoothPrintOperation addObserver:self
+                    forKeyPath:@"isFinishedForBT"
+                        options:NSKeyValueObservingOptionNew
+                        context:nil];
+
+        [bluetoothPrintOperation addObserver:self
+                    forKeyPath:@"communicationResultForBT"
+                        options:NSKeyValueObservingOptionNew
+                        context:nil];
+
+        operation = bluetoothPrintOperation;
        
     } else if (isWifi == 1) {
         BRWLANPrintOperation *wlanPrintOperation = [[BRWLANPrintOperation alloc]
@@ -668,19 +668,19 @@
             return;
         }
     } else if ([keyPath isEqualToString:@"communicationResultForBT"]) {
-               BRBluetoothPrintOperation *bluetoothOperation = (BRBluetoothPrintOperation *) operation;
-               BOOL result = bluetoothOperation.communicationResultForBT;
-               NSLog(@"Communication Result: %d", result);
-               if (!result) {
-                   [operation removeObserver:self forKeyPath:@"isFinishedForBT"];
-                   [operation removeObserver:self forKeyPath:@"communicationResultForBT"];
-                   PTSTATUSINFO resultStatus = bluetoothOperation.resultStatus;
-                   [self.commandDelegate
-                       sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Error occured while Bluetooth printing"]
-                             callbackId:_printCallbackId];
-                   _printCallbackId = nil;
-                   _image = nil;
-               }
+        BRBluetoothPrintOperation *bluetoothOperation = (BRBluetoothPrintOperation *) operation;
+        BOOL result = bluetoothOperation.communicationResultForBT;
+        NSLog(@"Communication Result: %d", result);
+        if (!result) {
+            [operation removeObserver:self forKeyPath:@"isFinishedForBT"];
+            [operation removeObserver:self forKeyPath:@"communicationResultForBT"];
+            PTSTATUSINFO resultStatus = bluetoothOperation.resultStatus;
+            [self.commandDelegate
+                sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Error occured while Bluetooth printing"]
+                        callbackId:_printCallbackId];
+            _printCallbackId = nil;
+            _image = nil;
+        }
     } else {
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
