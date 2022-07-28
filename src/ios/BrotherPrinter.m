@@ -267,10 +267,11 @@
     NSString *ipAddress = obj[@"ipAddress"];
     NSString *modelName = obj[@"modelName"];
     NSString *paperLabelName = obj[@"paperLabelName"];
-    NSString *numberOfCopies = obj[@"numberOfCopies"];
+        NSString *numberOfCopies = obj[@"numberOfCopies"];
     NSString *orientation = obj[@"orientation"];
     NSString *customPaperFilePath = obj[@"customPaperFilePath"];
-
+    NSString *serialNumber = obj[@"serialNumber"];
+    
     if (!modelName) {
         [self.commandDelegate
                 sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Expected a \"modelName\" key in the given object"]
@@ -290,12 +291,23 @@
     }
 
     if ([@"BLUETOOTH" isEqualToString:port]) {
+        
+        if(!serialNumber){
+            [self.commandDelegate
+                    sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Expected a \"serialNumber\" key in the given object for BlueTooth devices"]
+                          callbackId:command.callbackId];
+            return;
+        }
         [userDefaults
                 setObject:@"0"
                    forKey:kIsWiFi];
         [userDefaults
                 setObject:@"1"
                    forKey:kIsBluetooth];
+        
+        [userDefaults
+                setObject:serialNumber
+                   forKey:kSerialNumber];
     }
 
     if ([@"NET" isEqualToString:port]) {
@@ -305,15 +317,15 @@
         [userDefaults
                 setObject:@"0"
                    forKey:kIsBluetooth];
+        
+        [userDefaults
+                setObject:@"0"
+                   forKey:kSerialNumber];
     }
 
     [userDefaults
             setObject:ipAddress
                forKey:kIPAddress];
-
-    [userDefaults
-            setObject:@"0"
-               forKey:kSerialNumber];
 
     if (paperLabelName) {
         [userDefaults
@@ -410,7 +422,7 @@
     NSString *numPaper = [self stringValueFromDefaults:userDefaults forKey:kPrintNumberOfPaperKey withFallback:@"1"]; // Item 1
 
     printInfo.strPaperName = [self stringValueFromDefaults:userDefaults forKey:kPaperLabelName withFallback:@"62mm"]; // Item 2
-    printInfo.nOrientation = (int) [self integerValueFromDefaults:userDefaults forKey:kPrintOrientationKey withFallback:0x00]; // Item 3
+    printInfo.nOrientation = (int) [self integerValueFromDefaults:userDefaults forKey:kPrintOrientationKey withFallback:Landscape]; // Item 3
     printInfo.nPrintMode = (int) [self integerValueFromDefaults:userDefaults forKey:kScalingModeKey withFallback:Fit]; // Item 4
     printInfo.scaleValue = [self doubleValueFromDefaults:userDefaults forKey:kScalingFactorKey withFallback:1.0]; // Item 5
 ///////////
@@ -501,7 +513,7 @@
             finalDeviceName = [NSString stringWithFormat:@"Brother %@", printerName];
         }
     }];
-    
+
     NSFileManager *fileManager = [NSFileManager defaultManager];
 
     if (isBluetooth == 1) {
@@ -510,12 +522,13 @@
         if ([fileManager fileExistsAtPath:_customPaperFilePath]){
             [_ptp setCustomPaperFile:_customPaperFilePath];
         }
-//        [_ptp setupForBluetoothDeviceWithSerialNumber:serialNumber];
+        
+        [_ptp setupForBluetoothDeviceWithSerialNumber:serialNumber];
 
     } else if (isWifi == 1) {
         _ptp = [[BRPtouchPrinter alloc] initWithPrinterName:finalDeviceName interface:CONNECTION_TYPE_WLAN];
-        
-        if ([fileManager fileExistsAtPath:_customPaperFilePath]){
+       
+       if ([fileManager fileExistsAtPath:_customPaperFilePath]){
             [_ptp setCustomPaperFile:_customPaperFilePath];
         }
         //    [_ptp setIPAddress:ipAddress];
@@ -536,7 +549,7 @@
 
     NSOperation *operation = nil;
     if (isBluetooth == 1) {
-        /*       BRBluetoothPrintOperation *bluetoothPrintOperation = [[BRBluetoothPrintOperation alloc]
+               BRBluetoothPrintOperation *bluetoothPrintOperation = [[BRBluetoothPrintOperation alloc]
                                   initWithOperation:_ptp
                                           printInfo:printInfo
                                              imgRef:[_image CGImage]
@@ -554,7 +567,7 @@
                               context:nil];
        
                operation = bluetoothPrintOperation;
-       */
+       
     } else if (isWifi == 1) {
         BRWLANPrintOperation *wlanPrintOperation = [[BRWLANPrintOperation alloc]
                 initWithOperation:_ptp
@@ -655,7 +668,7 @@
             return;
         }
     } else if ([keyPath isEqualToString:@"communicationResultForBT"]) {
-        /*       BRBluetoothPrintOperation *bluetoothOperation = (BRBluetoothPrintOperation *) operation;
+               BRBluetoothPrintOperation *bluetoothOperation = (BRBluetoothPrintOperation *) operation;
                BOOL result = bluetoothOperation.communicationResultForBT;
                NSLog(@"Communication Result: %d", result);
                if (!result) {
@@ -667,7 +680,7 @@
                              callbackId:_printCallbackId];
                    _printCallbackId = nil;
                    _image = nil;
-               }*/
+               }
     } else {
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
