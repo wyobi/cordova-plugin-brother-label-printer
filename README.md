@@ -61,8 +61,48 @@ __Tested models:__ `QL-720NW`, `QL-820NWB`, `TD-2120N`
 ## Supported interfaces (by this plugin):
 
 * Wi-Fi (Infrastructure mode)
-* Bluetooth (Android only, at the moment, iOS needs more work. See [PR10](https://github.com/gordol/cordova-brother-label-printer/pull/10)
+* Bluetooth (Android and iOS)
 * USB
+
+### BlueTooth notes:
+If your app is supporting BlueTooth, you will need the following changes in you rproject:
+#### Android permissions
+```
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+```
+#### iOS
+
+* For iOS, you need to apply for an MFi PPID.
+Please follow the steps at 
+https://secure6.brother.co.jp/mfi/Top.aspx
+
+* Code change in your cordova config
+
+```
+    <config-file parent="NSBluetoothPeripheralUsageDescription" platform="ios" target="*-Info.plist">
+        <string>Bluetooth access for Brother label printer</string>
+    </config-file>
+    <config-file parent="NSBluetoothAlwaysUsageDescription" platform="ios" target="*-Info.plist">
+        <string>Bluetooth access for Brother label printer</string>
+    </config-file>
+    <config-file parent="UISupportedExternalAccessoryProtocols" platform="ios" target="*-Info.plist">
+        <array>
+            <string>com.brother.ptcbp</string>
+        </array>
+    </config-file>
+    <config-file parent="NSLocalNetworkUsageDescription" platform="ios" target="*-Info.plist">
+        <string>Used to discover printers on your network</string>
+    </config-file>
+    <config-file parent="NSBonjourServices" platform="ios" target="*-Info.plist">
+        <array>
+            <string>_printer._tcp</string>
+            <string>_pdl-datastream._tcp</string>
+            <string>_ipp._tcp</string>
+        </array>
+    </config-file>
+```
 
 
 ## Usage
