@@ -1,4 +1,4 @@
-# Cordova plugin for Brother Label Printers
+# Cordova and Capacitor plugin for Brother Label Printers
 
 ## Supports Android and iOS
 
