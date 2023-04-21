@@ -16,7 +16,7 @@ Already bundled is the following version:
 In your Cordova project, run the following command to install the plugin.
 
 ```
-cordova plugin add git+https://github.com/MenelicSoftware/cordova-plugin-brother-label-printer
+cordova plugin add git+https://github.com/AbobosSoftware/cordova-plugin-brother-label-printer
 ```
 or
 
@@ -246,7 +246,7 @@ interface Printer {
 
 ## iOS notes:
 * You may get errors while compiling: you need to make sure the native lib is "embed and sign" .
- see https://github.com/MenelicSoftware/cordova-plugin-brother-label-printer/issues/39
+ see https://github.com/AbobosSoftware/cordova-plugin-brother-label-printer/issues/39
 
 * If you are getting errors about unsupported architectures, please look at
  http://ikennd.ac/blog/2015/02/stripping-unwanted-architectures-from-dynamic-libraries-in-xcode/
