@@ -89,7 +89,8 @@
                 </config-file>
                 <framework src="ExternalAccessory.framework" />
         -->
-        <framework src="src/ios/libs/BRLMPrinterKit.framework" custom="true"/>
+        <!-- fixing for capacitor https://github.com/AbobosSoftware/cordova-plugin-brother-label-printer/issues/51 -->    
+        <!-- <framework src="src/ios/libs/BRLMPrinterKit.framework" custom="true"/> -->
         <podspec>
             <config>
                 <source url="https://github.com/CocoaPods/Specs.git"/>
