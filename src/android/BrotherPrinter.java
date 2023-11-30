@@ -110,7 +110,7 @@ public class BrotherPrinter extends CordovaPlugin {
             }
 
             if ("findBluetoothPrinters".equals(action)) {
-                findBluetoothPrinters(this, callbackContext);
+                findBluetoothPrinters(callbackContext);
                 return true;
             }
 
@@ -125,7 +125,7 @@ public class BrotherPrinter extends CordovaPlugin {
             }
 
             if ("printViaSDK".equals(action)) {
-                printViaSDK(this, args, callbackContext);
+                printViaSDK(args, callbackContext);
                 return true;
             }
 
@@ -349,12 +349,12 @@ public class BrotherPrinter extends CordovaPlugin {
         });
     }
 
-    private void findBluetoothPrinters(final CordovaPlugin plugin, final CallbackContext callbackctx) {
+    private void findBluetoothPrinters(final CallbackContext callbackctx) {
         cordova.getThreadPool().execute(new Runnable() {
             @Override
             public void run() {
                 try {
-                    if(!ensureAndroid12BtPermissions(plugin)){
+                    if(!ensureAndroid12BtPermissions()){
                         return;
                     }
 
@@ -437,7 +437,7 @@ public class BrotherPrinter extends CordovaPlugin {
         }
     }
 
-    private void printViaSDK(final CordovaPlugin plugin, final JSONArray args, final CallbackContext callbackctx) {
+    private void printViaSDK(final JSONArray args, final CallbackContext callbackctx) {
         cordova.getThreadPool().execute(new Runnable() {
             @Override
             public void run() {
@@ -454,7 +454,7 @@ public class BrotherPrinter extends CordovaPlugin {
 
                     if (PrinterInfo.Port.BLUETOOTH.toString().equals(port)) {
 
-                        if (!ensureAndroid12BtPermissions(plugin)) {
+                        if (!ensureAndroid12BtPermissions()) {
                             return;
                         }
 
@@ -633,7 +633,7 @@ public class BrotherPrinter extends CordovaPlugin {
 
     }
 
-    private boolean ensureAndroid12BtPermissions(CordovaPlugin plugin) {
+    private boolean ensureAndroid12BtPermissions() {
 
         boolean alreadyHasPermission = true;
 
@@ -641,7 +641,7 @@ public class BrotherPrinter extends CordovaPlugin {
 
             if (!cordova.hasPermission(Manifest.permission.BLUETOOTH_CONNECT) ||
                     !cordova.hasPermission(Manifest.permission.BLUETOOTH_SCAN)) {
-                cordova.requestPermissions(plugin, PERMISSION_BLUETOOTH_12_REQUEST_CODE, PERMISSION_BLUETOOTH_12);
+                cordova.requestPermissions(this, PERMISSION_BLUETOOTH_12_REQUEST_CODE, PERMISSION_BLUETOOTH_12);
                 alreadyHasPermission = false;
             }
 
