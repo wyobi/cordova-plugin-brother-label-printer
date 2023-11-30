@@ -70,6 +70,8 @@ public class BrotherPrinter extends CordovaPlugin {
     private ImageFilePrint mFilePrint;
 
     private final static int PERMISSION_WRITE_EXTERNAL_STORAGE = 1;
+    private static final int PERMISSION_BLUETOOTH_12_REQUEST_CODE = 2;
+    private static final String[] PERMISSION_BLUETOOTH_12 = {Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN};
 
     private boolean isPermitWriteStorage() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -352,6 +354,10 @@ public class BrotherPrinter extends CordovaPlugin {
             @Override
             public void run() {
                 try {
+                    if(!ensureAndroid12BtPermissions()){
+                        return;
+                    }
+
                     List<DiscoveredPrinter> discoveredPrinters = enumerateBluetoothPrinters();
                     sendDiscoveredPrinters(callbackctx, discoveredPrinters);
                 } catch (Throwable t) {
@@ -447,6 +453,11 @@ public class BrotherPrinter extends CordovaPlugin {
                     }
 
                     if (PrinterInfo.Port.BLUETOOTH.toString().equals(port)) {
+
+                        if (!ensureAndroid12BtPermissions()) {
+                            return;
+                        }
+
                         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
                         if (bluetoothAdapter == null) {
                             PluginResult result = new PluginResult(PluginResult.Status.ERROR, "This device does not have a bluetooth adapter.");
@@ -620,6 +631,23 @@ public class BrotherPrinter extends CordovaPlugin {
             Log.e("Brother/SDKEvent", "Exception in copyBinFile() " + e.toString());
         }
 
+    }
+
+    private boolean ensureAndroid12BtPermissions() {
+
+        boolean alreadyHasPermission = true;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {//Andro 12 and above
+
+            if (!cordova.hasPermission(Manifest.permission.BLUETOOTH_CONNECT) ||
+                    !cordova.hasPermission(Manifest.permission.BLUETOOTH_SCAN)) {
+                cordova.requestPermissions(this, PERMISSION_BLUETOOTH_12_REQUEST_CODE, PERMISSION_BLUETOOTH_12);
+                alreadyHasPermission = false;
+            }
+
+        }
+
+        return alreadyHasPermission;
     }
 
 }
