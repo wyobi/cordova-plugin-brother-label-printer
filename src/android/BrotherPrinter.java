@@ -70,6 +70,8 @@ public class BrotherPrinter extends CordovaPlugin {
     private ImageFilePrint mFilePrint;
 
     private final static int PERMISSION_WRITE_EXTERNAL_STORAGE = 1;
+    private static final int PERMISSION_BLUETOOTH_12_REQUEST_CODE = 2;
+    private static final String[] PERMISSION_BLUETOOTH_12 = {Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN};
 
     private boolean isPermitWriteStorage() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -108,7 +110,7 @@ public class BrotherPrinter extends CordovaPlugin {
             }
 
             if ("findBluetoothPrinters".equals(action)) {
-                findBluetoothPrinters(callbackContext);
+                findBluetoothPrinters(this, callbackContext);
                 return true;
             }
 
@@ -123,7 +125,7 @@ public class BrotherPrinter extends CordovaPlugin {
             }
 
             if ("printViaSDK".equals(action)) {
-                printViaSDK(args, callbackContext);
+                printViaSDK(this, args, callbackContext);
                 return true;
             }
 
@@ -347,11 +349,15 @@ public class BrotherPrinter extends CordovaPlugin {
         });
     }
 
-    private void findBluetoothPrinters(final CallbackContext callbackctx) {
+    private void findBluetoothPrinters(final CordovaPlugin plugin, final CallbackContext callbackctx) {
         cordova.getThreadPool().execute(new Runnable() {
             @Override
             public void run() {
                 try {
+                    if(!ensureAndroid12BtPermissions(plugin)){
+                        return;
+                    }
+
                     List<DiscoveredPrinter> discoveredPrinters = enumerateBluetoothPrinters();
                     sendDiscoveredPrinters(callbackctx, discoveredPrinters);
                 } catch (Throwable t) {
@@ -431,7 +437,7 @@ public class BrotherPrinter extends CordovaPlugin {
         }
     }
 
-    private void printViaSDK(final JSONArray args, final CallbackContext callbackctx) {
+    private void printViaSDK(final CordovaPlugin plugin, final JSONArray args, final CallbackContext callbackctx) {
         cordova.getThreadPool().execute(new Runnable() {
             @Override
             public void run() {
@@ -447,6 +453,11 @@ public class BrotherPrinter extends CordovaPlugin {
                     }
 
                     if (PrinterInfo.Port.BLUETOOTH.toString().equals(port)) {
+
+                        if (!ensureAndroid12BtPermissions(plugin)) {
+                            return;
+                        }
+
                         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
                         if (bluetoothAdapter == null) {
                             PluginResult result = new PluginResult(PluginResult.Status.ERROR, "This device does not have a bluetooth adapter.");
@@ -620,6 +631,23 @@ public class BrotherPrinter extends CordovaPlugin {
             Log.e("Brother/SDKEvent", "Exception in copyBinFile() " + e.toString());
         }
 
+    }
+
+    private boolean ensureAndroid12BtPermissions(CordovaPlugin plugin) {
+
+        boolean alreadyHasPermission = true;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {//Andro 12 and above
+
+            if (!cordova.hasPermission(Manifest.permission.BLUETOOTH_CONNECT) ||
+                    !cordova.hasPermission(Manifest.permission.BLUETOOTH_SCAN)) {
+                cordova.requestPermissions(plugin, PERMISSION_BLUETOOTH_12_REQUEST_CODE, PERMISSION_BLUETOOTH_12);
+                alreadyHasPermission = false;
+            }
+
+        }
+
+        return alreadyHasPermission;
     }
 
 }
