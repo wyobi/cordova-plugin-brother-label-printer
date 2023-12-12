@@ -189,7 +189,10 @@ interface Printer {
 
 ### Sample Code
 ```
-    private setAndPrint(thePrinter: Printer, dataUrl: string) {
+
+declare var cordova: any //needed if using capacitor
+
+ private setAndPrint(thePrinter: Printer, dataUrl: string) {
 
         console.debug(`===== in setAndPrint===`)
 
