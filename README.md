@@ -193,7 +193,7 @@ interface Printer {
 declare var cordova: any //needed if using capacitor
 
  private setAndPrint(thePrinter: Printer, dataUrl: string) {
-        // the dataUrl param is coping from  an HTML canvas HTMLCanvasElement.toDataURL()
+        // the dataUrl param is coming from  an HTML canvas HTMLCanvasElement.toDataURL()
         console.debug(`===== in setAndPrint===`)
 
         thePrinter.orientation = 'LANDSCAPE'
