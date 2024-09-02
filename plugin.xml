@@ -3,7 +3,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
         id="cordova-plugin-brother-label-printer"
-        version="1.8.0">
+        version="1.9.0">
 
     <name>BrotherPrinter</name>
 
@@ -33,6 +33,7 @@
         </config-file>
 
         <source-file src="src/android/BrotherPrinter.java" target-dir="src/com/threescreens/cordova/plugin/brotherprinter" />
+        <source-file src="src/android/BrotherUsbHelper.java" target-dir="src/com/threescreens/cordova/plugin/brotherprinter" />
         <source-file src="src/android/PrinterInputParameterConstant.java" target-dir="src/com/threescreens/cordova/plugin/brotherprinter" />
 
 
@@ -51,14 +52,13 @@
         <source-file src="src/android/libs/x86" target-dir="jniLibs" />
         <source-file src="src/android/libs/x86_64" target-dir="jniLibs" />
 
-
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
             <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-            <!--
-                        <uses-permission android:name="android.permission.BLUETOOTH" android:required="false" />
-                        <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:required="false" />
-            -->
+            <uses-permission android:name="android.permission.BLUETOOTH" />
+            <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+            <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+            <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
             <uses-permission android:name="android.permission.INTERNET"/>
             <uses-permission android:name="android.permission.USB" android:required="false" />
             <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />

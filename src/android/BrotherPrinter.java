@@ -3,6 +3,7 @@ package com.threescreens.cordova.plugin.brotherprinter;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import java.io.File;
@@ -49,9 +50,11 @@ import com.brother.ptouch.sdk.NetPrinter;
 import com.brother.ptouch.sdk.Printer;
 import com.brother.ptouch.sdk.PrinterInfo;
 import com.brother.ptouch.sdk.PrinterStatus;
+import com.brother.ptouch.sdk.printdemo.common.Common;
 import com.brother.ptouch.sdk.printdemo.common.MsgHandle;
 import com.brother.ptouch.sdk.printdemo.printprocess.ImageBitmapPrint;
 import com.brother.ptouch.sdk.printdemo.printprocess.ImageFilePrint;
+
 import static com.threescreens.cordova.plugin.brotherprinter.PrinterInputParameterConstant.INCLUDE_BATTERY_STATUS;
 
 public class BrotherPrinter extends CordovaPlugin {
@@ -73,6 +76,11 @@ public class BrotherPrinter extends CordovaPlugin {
     private final static int PERMISSION_WRITE_EXTERNAL_STORAGE = 1;
     private static final int PERMISSION_BLUETOOTH_12_REQUEST_CODE = 2;
     private static final String[] PERMISSION_BLUETOOTH_12 = {Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN};
+    private BrotherUsbHelper usbHelper;
+    private UsbManager usbManager;
+
+    private CallbackContext lastCallbackCtx;
+    private boolean enumerateAll;
 
     private boolean isPermitWriteStorage() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -95,6 +103,29 @@ public class BrotherPrinter extends CordovaPlugin {
             if (!isPermitWriteStorage()) {
                 cordova.requestPermission(this, PERMISSION_WRITE_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
             }
+
+            usbHelper = new BrotherUsbHelper(cordova.getActivity()) {
+                @Override
+                public void usbDisconnected(UsbDevice device) {
+                    removeDisconnectedUsbPrinterFromHistory(device);
+                }
+
+                private void removeDisconnectedUsbPrinterFromHistory(UsbDevice device) {
+
+                }
+
+                @Override
+                public void usbConnectedAndPermissionGranted(UsbDevice device) {
+                    if(lastCallbackCtx != null) {
+                        if (enumerateAll) {
+                            findUsbPrinters(lastCallbackCtx); //Try again
+                        } else {
+                            findPrinters(lastCallbackCtx); //Try again
+                        }
+                    }
+                }};
+
+            usbHelper.onCreate(cordova.getActivity().getIntent());
         } catch (Throwable t) {
             LOG.e(TAG, "Failed to initialize label printer " + t);
         }
@@ -112,6 +143,11 @@ public class BrotherPrinter extends CordovaPlugin {
 
             if ("findBluetoothPrinters".equals(action)) {
                 findBluetoothPrinters(callbackContext);
+                return true;
+            }
+
+            if ("findUsbPrinters".equals(action)) {
+                findUsbPrinters(callbackContext);
                 return true;
             }
 
@@ -188,6 +224,24 @@ public class BrotherPrinter extends CordovaPlugin {
             for (PrinterInfo.Model model : models) {
                 String modelName = model.toString().replaceAll("_", "-");
                 if (printer.modelName.endsWith(modelName)) {
+                    this.model = model;
+                    break;
+                }
+            }
+        }
+
+        public DiscoveredPrinter(UsbDevice printer) {
+            port = PrinterInfo.Port.USB;
+            ipAddress = null;
+            serNo = null;
+            nodeName = null;
+            location = null;
+            modelName = printer.getProductName();
+
+            PrinterInfo.Model[] models = PrinterInfo.Model.values();
+            for (PrinterInfo.Model model : models) {
+                String modelName = model.toString().replaceAll("_", "-");
+                if (printer.getProductName().endsWith(modelName)) {
                     this.model = model;
                     break;
                 }
@@ -320,6 +374,36 @@ public class BrotherPrinter extends CordovaPlugin {
         return results;
     }
 
+    private List<DiscoveredPrinter> enumerateUsbPrinters() {
+        ArrayList<DiscoveredPrinter> results = new ArrayList<DiscoveredPrinter>();
+        try {
+            usbManager = (UsbManager) cordova.getContext().getSystemService(Context.USB_SERVICE);
+            HashMap<String, UsbDevice> devices = usbManager.getDeviceList();
+            for(String key : devices.keySet()) {
+                UsbDevice usbDevice = devices.get(key);
+                if(usbDevice.getVendorId() == 1273) {
+                    if (usbManager.hasPermission(usbDevice) == false) {
+                        usbHelper.requestUsbPermission(usbManager, usbDevice);
+                        return null;
+                    }
+
+                    Printer myPrinter = new Printer();
+                    UsbDevice device = myPrinter.getUsbDevice(usbManager);
+                    if(device.getManufacturerName().toLowerCase().indexOf("brother") >= 0) {
+                        PrinterInfo myPrinterInfo = myPrinter.getPrinterInfo();
+                        myPrinterInfo.port = PrinterInfo.Port.USB;
+                        results.add(new DiscoveredPrinter(device));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return results;
+    }
+
+
     private void sendDiscoveredPrinters(final CallbackContext callbackctx, List<DiscoveredPrinter> discoveredPrinters) {
         JSONArray args = new JSONArray();
 
@@ -368,6 +452,31 @@ public class BrotherPrinter extends CordovaPlugin {
         });
     }
 
+    private void findUsbPrinters(final CallbackContext callbackctx) {
+        cordova.getThreadPool().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if(!ensureAndroid12BtPermissions()){
+                        return;
+                    }
+
+                    List<DiscoveredPrinter> discoveredPrinters = enumerateUsbPrinters();
+                    if(discoveredPrinters == null) {
+                        lastCallbackCtx = callbackctx;
+                        enumerateAll = false;
+                        return;
+                    }
+
+                    Common.mUsbRequest = 1; //Not requesting again
+                    sendDiscoveredPrinters(callbackctx, discoveredPrinters);
+                } catch (Throwable t) {
+                    sendError(callbackctx, t, "Failed to find Usb printers");
+                }
+            }
+        });
+    }
+
     private void findPrinters(final CallbackContext callbackctx) {
         cordova.getThreadPool().execute(new Runnable() {
             @Override
@@ -375,6 +484,16 @@ public class BrotherPrinter extends CordovaPlugin {
                 try {
                     List<DiscoveredPrinter> allPrinters = enumerateNetPrinters();
                     allPrinters.addAll(enumerateBluetoothPrinters());
+
+                    List<DiscoveredPrinter> usbPrinters = enumerateUsbPrinters();
+                    if(usbPrinters == null) {
+                        lastCallbackCtx = callbackctx;
+                        enumerateAll = true;
+                        return;
+                    }
+
+                    Common.mUsbRequest = 1; //Not requesting again
+                    allPrinters.addAll(usbPrinters);
                     sendDiscoveredPrinters(callbackctx, allPrinters);
                 } catch (Throwable t) {
                     sendError(callbackctx, t, "Failed to find printers");
@@ -475,6 +594,10 @@ public class BrotherPrinter extends CordovaPlugin {
                         mBitmapPrint.setBluetoothAdapter(bluetoothAdapter);
                         mFilePrint.setBluetoothAdapter(bluetoothAdapter);
                     }
+                    else if(PrinterInfo.Port.USB.toString().equals(port)) {
+                        mBitmapPrint.setPrinterInfo();
+                        mFilePrint.setPrinterInfo();
+                    }
 
                     Bitmap bitmap = null;
                     try {
@@ -525,7 +648,7 @@ public class BrotherPrinter extends CordovaPlugin {
 
                 final String ACTION_USB_PERMISSION = "com.threescreens.cordova.plugin.brotherprinter.USB_PERMISSION";
 
-                PendingIntent permissionIntent = PendingIntent.getBroadcast(context, 0, new Intent(ACTION_USB_PERMISSION), 0);
+                PendingIntent permissionIntent = PendingIntent.getBroadcast(context, 0, new Intent(ACTION_USB_PERMISSION), PendingIntent.FLAG_IMMUTABLE);
                 usbManager.requestPermission(usbDevice, permissionIntent);
 
                 final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
@@ -651,4 +774,30 @@ public class BrotherPrinter extends CordovaPlugin {
         return alreadyHasPermission;
     }
 
+    @Override
+    public void onNewIntent(Intent intent) {
+        if(usbHelper != null) {
+            usbHelper.onNewIntent(intent);
+        }
+
+        super.onNewIntent(intent);
+    }
+
+    @Override
+    public void onResume(boolean multitasking) {
+        if(usbHelper != null) {
+            usbHelper.onResume();
+        }
+
+        super.onResume(multitasking);
+    }
+
+    @Override
+    public void onPause(boolean multitasking) {
+        if(usbHelper != null) {
+            usbHelper.onPause();
+        }
+
+        super.onPause(multitasking);
+    }
 }

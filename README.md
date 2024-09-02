@@ -134,9 +134,17 @@ Upon success, [`findBluetoothPrinters`](#findBluetoothPrinters) will provide a l
 function findBluetoothPrinters(success: (printers: Printer[]) => void, failure: (reason: string) => void): void
 ```
 
+### findUsbPrinters
+
+Upon success, [`findUsbPrinters`](#findUsbPrinters) will provide a list of printers that were discovered that is connected via Usb. It is not considered an error for no printers to be found, and in this case the list will just be empty.
+
+```typescript
+function findUsbPrinters(success: (printers: Printer[]) => void, failure: (reason: string) => void): void
+```
+
 ### findPrinters
 
-[`findPrinters`](#findPrinters) is a convenience function that will perform the actions of both [`findNetworkPrinters`](#findNetworkPrinters) and [`findBluetoothPrinters`](#findBluetoothPrinters), and combine the the results into a single continuous list.
+[`findPrinters`](#findPrinters) is a convenience function that will perform the actions of [`findNetworkPrinters`](#findNetworkPrinters), [`findBluetoothPrinters`](#findBluetoothPrinters) and  [`findUsbPrinters`](#findUsbPrinters), and combine the the results into a single continuous list.
 
 ```typescript
 function findPrinters(success: (printers: Printer[]) => void, failure: (reason: string) => void): void
@@ -144,7 +152,7 @@ function findPrinters(success: (printers: Printer[]) => void, failure: (reason: 
 
 ### setPrinter
 
-must be called before [`printViaSDK`](#printViaSDK). It takes a single object that should be one of the objects returned from [`findNetworkPrinters`](#findNetworkPrinters), [`findBluetoothPrinters`](#findBluetoothPrinters), or [`findPrinters`](#findPrinters). Upon successfully setting the printer, the success callback
+must be called before [`printViaSDK`](#printViaSDK). It takes a single object that should be one of the objects returned from [`findNetworkPrinters`](#findNetworkPrinters), [`findBluetoothPrinters`](#findBluetoothPrinters), [`findUsbPrinters`](#findUsbPrinters), or [`findPrinters`](#findPrinters). Upon successfully setting the printer, the success callback
 will be invoked.  Otherwise, the error callback will be invoked with a string for an error message.
 
 ```typescript
