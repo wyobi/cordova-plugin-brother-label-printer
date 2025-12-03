@@ -190,15 +190,19 @@
   //  NSLog(@"==== in findNetworkPrinters with callback id                = %@", command.callbackId);
 
 //	[self.commandDelegate runInBackground:^{
+    __weak typeof(self) weakSelf = self;
     [self networkPrintersWithCompletion:^(NSArray *networkPrinters, NSError *error) {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) return;
+        
         if (error) {
-            [self.commandDelegate
+            [strongSelf.commandDelegate
                     sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[error localizedDescription]]
                           callbackId:command.callbackId];
             return;
         }
 
-        [self.commandDelegate
+        [strongSelf.commandDelegate
                 sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:networkPrinters]
                       callbackId:command.callbackId];
 
@@ -208,15 +212,19 @@
 
 - (void)findBluetoothPrinters:(CDVInvokedUrlCommand *)command {
 //	[self.commandDelegate runInBackground:^{
+    __weak typeof(self) weakSelf = self;
     [self pairedDevicesWithCompletion:^(NSArray *bluetoothPrinters, NSError *error) {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) return;
+        
         if (error) {
-            [self.commandDelegate
+            [strongSelf.commandDelegate
                     sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[error localizedDescription]]
                           callbackId:command.callbackId];
             return;
         }
 
-        [self.commandDelegate
+        [strongSelf.commandDelegate
                 sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:bluetoothPrinters]
                       callbackId:command.callbackId];
     }];
@@ -656,7 +664,7 @@
         if (!result) {
             [operation removeObserver:self forKeyPath:IS_FINISHED_FOR_WLAN];
             [operation removeObserver:self forKeyPath:COMMUNICATION_RESULT_FOR_WLAN];
-            PTSTATUSINFO resultStatus = wlanOperation.resultStatus;
+            // Note: resultStatus available via wlanOperation.resultStatus if needed for debugging
 
             [self.commandDelegate
                     sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"No print response received from Network printer"]
@@ -674,7 +682,7 @@
         if (!result) {
             [operation removeObserver:self forKeyPath:@"isFinishedForBT"];
             [operation removeObserver:self forKeyPath:@"communicationResultForBT"];
-            PTSTATUSINFO resultStatus = bluetoothOperation.resultStatus;
+            // Note: resultStatus available via bluetoothOperation.resultStatus if needed for debugging
             [self.commandDelegate
                 sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Error occured while Bluetooth printing"]
                         callbackId:_printCallbackId];
