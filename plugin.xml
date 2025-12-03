@@ -18,9 +18,6 @@
         <engine name="cordova" version=">=3.0.0" />
     </engines>
 
-    <!-- Hook to clean up jniLibs before reinstalling -->
-    <hook type="before_plugin_install" src="hooks/before_plugin_install.js" />
-
     <!-- interface -->
     <js-module src="www/printer.js" name="BrotherPrinter">
         <clobbers target="plugin.brotherPrinter" />
@@ -49,11 +46,11 @@
 
         <source-file src="src/android/libs/BrotherPrintLibrary.jar" target-dir="libs" />
 
-        <source-file src="src/android/libs/arm64-v8a" target-dir="jniLibs" />
-        <source-file src="src/android/libs/armeabi" target-dir="jniLibs" />
-        <source-file src="src/android/libs/armeabi-v7a" target-dir="jniLibs" />
-        <source-file src="src/android/libs/x86" target-dir="jniLibs" />
-        <source-file src="src/android/libs/x86_64" target-dir="jniLibs" />
+        <lib-file src="src/android/libs/arm64-v8a/libcreatedata.so" arch="arm64-v8a" />
+        <lib-file src="src/android/libs/armeabi/libcreatedata.so" arch="armeabi" />
+        <lib-file src="src/android/libs/armeabi-v7a/libcreatedata.so" arch="armeabi-v7a" />
+        <lib-file src="src/android/libs/x86/libcreatedata.so" arch="x86" />
+        <lib-file src="src/android/libs/x86_64/libcreatedata.so" arch="x86_64" />
 
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
