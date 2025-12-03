@@ -66,26 +66,23 @@
 
     [self.ptp setIPAddress:self.ipAddress];
 
-    if ([self.ptp isPrinterReady]) {
-        self.communicationResultForWLAN = [self.ptp startCommunication];
-        if (self.communicationResultForWLAN) {
+    // isPrinterReady was removed in newer Brother SDK versions
+    // startCommunication handles the connection and readiness check
+    self.communicationResultForWLAN = [self.ptp startCommunication];
+    if (self.communicationResultForWLAN) {
 
-            [self.ptp setPrintInfo:self.printInfo];
+        [self.ptp setPrintInfo:self.printInfo];
 
-            _errorCode = [self.ptp printImage:self.imgRef copy:self.numberOfPaper];
-            NSLog(@"==== in main error code in instance is %d", self.errorCode);
+        _errorCode = [self.ptp printImage:self.imgRef copy:self.numberOfPaper];
+        NSLog(@"==== in main error code in instance is %d", self.errorCode);
 
-            if (_errorCode == ERROR_NONE_) {
-                PTSTATUSINFO resultstatus;
-                [self.ptp getPTStatus:&resultstatus];
-                _resultStatus = resultstatus;
-            }
-
+        if (_errorCode == ERROR_NONE_) {
+            PTSTATUSINFO resultstatus;
+            [self.ptp getPTStatus:&resultstatus];
+            _resultStatus = resultstatus;
         }
-        [self.ptp endCommunication];
 
-    } else {
-        self.communicationResultForWLAN = NO;
+        [self.ptp endCommunication];
     }
 
     self.isExecutingForWLAN = NO;

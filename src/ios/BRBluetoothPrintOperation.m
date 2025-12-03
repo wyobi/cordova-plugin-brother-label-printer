@@ -57,23 +57,20 @@
 
     [self.ptp setupForBluetoothDeviceWithSerialNumber:self.serialNumber];
 
-    if ([self.ptp isPrinterReady]) {
-        self.communicationResultForBT = [self.ptp startCommunication];
-        if (self.communicationResultForBT) {
-            [self.ptp setPrintInfo:self.printInfo];
+    // isPrinterReady was removed in newer Brother SDK versions
+    // startCommunication handles the connection and readiness check
+    self.communicationResultForBT = [self.ptp startCommunication];
+    if (self.communicationResultForBT) {
+        [self.ptp setPrintInfo:self.printInfo];
 
-            int printResult = [self.ptp printImage:self.imgRef copy:self.numberOfPaper];
-            if (printResult == 0) {
-                PTSTATUSINFO resultstatus;
-                [self.ptp getPTStatus:&resultstatus];
-                self.resultStatus = resultstatus;
-            }
+        int printResult = [self.ptp printImage:self.imgRef copy:self.numberOfPaper];
+        if (printResult == 0) {
+            PTSTATUSINFO resultstatus;
+            [self.ptp getPTStatus:&resultstatus];
+            self.resultStatus = resultstatus;
         }
-
+        
         [self.ptp endCommunication];
-
-    } else {
-        self.communicationResultForBT = NO;
     }
 
     self.isExecutingForBT = NO;
