@@ -117,10 +117,12 @@ public class BrotherPrinter extends CordovaPlugin {
                 @Override
                 public void usbConnectedAndPermissionGranted(UsbDevice device) {
                     if(lastCallbackCtx != null) {
+                        // enumerateAll=true is set by findPrinters (full enumeration was parked),
+                        // false by findUsbPrinters — retry the SAME kind of discovery that parked.
                         if (enumerateAll) {
-                            findUsbPrinters(lastCallbackCtx); //Try again
-                        } else {
                             findPrinters(lastCallbackCtx); //Try again
+                        } else {
+                            findUsbPrinters(lastCallbackCtx); //Try again
                         }
                     }
                 }};
@@ -648,7 +650,12 @@ public class BrotherPrinter extends CordovaPlugin {
 
                 final String ACTION_USB_PERMISSION = "com.threescreens.cordova.plugin.brotherprinter.USB_PERMISSION";
 
-                PendingIntent permissionIntent = PendingIntent.getBroadcast(context, 0, new Intent(ACTION_USB_PERMISSION), PendingIntent.FLAG_IMMUTABLE);
+                // Must be mutable so the system can attach EXTRA_PERMISSION_GRANTED; package-scoped
+                // because Android 14 blocks implicit mutable PendingIntents.
+                Intent permissionRequestIntent = new Intent(ACTION_USB_PERMISSION);
+                permissionRequestIntent.setPackage(context.getPackageName());
+                int permissionIntentFlags = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S ? PendingIntent.FLAG_MUTABLE : 0;
+                PendingIntent permissionIntent = PendingIntent.getBroadcast(context, 0, permissionRequestIntent, permissionIntentFlags);
                 usbManager.requestPermission(usbDevice, permissionIntent);
 
                 final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
@@ -666,7 +673,12 @@ public class BrotherPrinter extends CordovaPlugin {
                     }
                 };
 
-                context.registerReceiver(mUsbReceiver, new IntentFilter(ACTION_USB_PERMISSION));
+                // Custom action: Android 14 (targetSdk 34+) requires an export flag here.
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                    context.registerReceiver(mUsbReceiver, new IntentFilter(ACTION_USB_PERMISSION), Context.RECEIVER_NOT_EXPORTED);
+                } else {
+                    context.registerReceiver(mUsbReceiver, new IntentFilter(ACTION_USB_PERMISSION));
+                }
 
                 while (true) {
                     if (!usbManager.hasPermission(usbDevice)) {
